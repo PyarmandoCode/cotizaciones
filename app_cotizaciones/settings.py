@@ -144,7 +144,7 @@ DECIMAL_SEPARATOR = '.'
 
 STATIC_URL = 'static/'
 
-STATIC_URL = '/static/'
+
 
 #cuando estes en produccion coloc debug=false
 if DEBUG:
