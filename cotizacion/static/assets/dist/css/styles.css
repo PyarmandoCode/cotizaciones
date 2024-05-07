@@ -1,0 +1,321 @@
+.fondo-header {
+  background-color: #17a2b8; 
+}
+
+* { box-sizing: border-box; }
+body {
+  font: 16px Arial;
+}
+
+input {
+  border: 1px solid transparent;
+  background-color: #f1f1f1;
+  padding: 10px;
+  font-size: 16px;
+}
+
+
+textarea {
+  border: 2px solid transparent;
+  background-color: #f1f1f1;
+  padding: 10px;
+  font-size: 16px;
+}
+
+input[type=text] {
+  background-color: #f1f1f1;
+  width: 100%;
+}
+input[type=submit] {
+  background-color: DodgerBlue;
+  color: #fff;
+}
+
+#suggestions-list {
+  border: 1px solid #ccc; /* Añade bordes alrededor de la lista */
+  max-height: 300px; /* Establece la altura máxima con un scroll */
+  overflow-y: auto; /* Añade un scroll vertical si es necesario */
+  list-style: none; /* Elimina los estilos de la lista */
+  padding: 0;
+}
+
+#suggestions-list li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+#suggestions-list li:hover {
+  background-color: #17a2b8; /* Cambia el color de fondo al pasar el ratón sobre
+   un elemento */
+  color: #f1f1f1;
+}
+
+#suggestions-list li.selected {
+  background-color: #17a2b8; /* Color de fondo para el elemento seleccionado */
+  color: #ffffff; /* Color de texto para el elemento seleccionado */
+}
+
+.oculto {
+  display: none;
+}
+
+.noculto {
+  display: block;
+}
+
+#suggestions-list-cliente {
+  border: 1px solid #ccc; /* Añade bordes alrededor de la lista */
+  max-height: 300px; /* Establece la altura máxima con un scroll */
+  overflow-y: auto; /* Añade un scroll vertical si es necesario */
+  list-style: none; /* Elimina los estilos de la lista */
+  padding: 0;
+}
+
+#suggestions-list-cliente li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+#suggestions-list-cliente li:hover {
+  background-color: #17a2b8; /* Cambia el color de fondo al pasar el ratón sobre
+   un elemento */
+  color: #f1f1f1;
+}
+
+#suggestions-list-cliente li.selected {
+  background-color: #17a2b8; /* Color de fondo para el elemento seleccionado */
+  color: #ffffff; /* Color de texto para el elemento seleccionado */
+}
+
+textarea {
+  width: 100%; /* Ocupa todo el ancho disponible */
+  min-height: 100px; /* Altura mínima inicial */
+  resize: vertical; /* Permite redimensionar verticalmente */
+  overflow-y: auto; /* Agrega barra de desplazamiento vertical si el contenido es más grande que el textarea */
+}
+
+.flatpickr-time {
+  display: none !important;
+}
+
+/* Estilos personalizados para las opciones del menú */
+.dropdown-menu {
+  min-width: 150px; /* Ancho mínimo del menú desplegable */
+  font-size: 16px; /* Tamaño de fuente para las opciones */
+}
+
+.dropdown-item {
+  padding: 8px 20px; /* Espaciado interno para las opciones */
+  color: #050505; /* Color del texto de las opciones */
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background-color: #050505; /* Color de fondo al pasar el mouse o enfocar */
+  color: #050505; /* Cambiar el color del texto cuando se pasa el mouse o se enfoca */
+}
+
+tfoot th {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+tfoot .subtotal, tfoot .fee, tfoot .total, tfoot .igv, tfoot .grantotal {
+  text-align: right;
+}
+
+tfoot th:last-child {
+  text-align: right;
+}
+
+tfoot th:first-child {
+  text-align: left;
+}
+/* Estilos para el encabezado de totales */
+.header-totales {
+  background-color: #17a2b8; /* Fondo rojo */
+  color: white; /* Texto blanco */
+}
+
+/* Estilos para el pie de página de totales */
+.footer-totales {
+  background-color: #ccc; /* Fondo rojo */
+  color: black; /* Texto blanco */
+}
+
+#datatable-cotizaciones thead th {
+  background-color: #17a2b8; /* Color de fondo */
+  color: white; /* Color del texto */
+  /* Otros estilos según sea necesario */
+}
+
+/* Estilo para las filas impares */
+#datatable-cotizaciones tbody tr:nth-child(odd) {
+  background-color: #f2f2f2; /* Color de fondo suave para filas impares */
+}
+
+/* Estilo para las filas pares */
+#datatable-cotizaciones tbody tr:nth-child(even) {
+  background-color: #e6e6e6; /* Color de fondo suave para filas pares */
+}
+
+#datatable-cotizacion thead th {
+  background-color: #17a2b8; /* Color de fondo */
+  color: white; /* Color del texto */
+  /* Otros estilos según sea necesario */
+}
+
+/* Estilo para las filas impares */
+#datatable-cotizacion tbody tr:nth-child(odd) {
+  background-color: #f2f2f2; /* Color de fondo suave para filas impares */
+}
+
+/* Estilo para las filas pares */
+#datatable-cotizacion tbody tr:nth-child(even) {
+  background-color: #e6e6e6; /* Color de fondo suave para filas pares */
+}
+
+#datatable-clientes thead th {
+  background-color: #17a2b8; /* Color de fondo */
+  color: white; /* Color del texto */
+  /* Otros estilos según sea necesario */
+}
+
+/* Estilo para las filas impares */
+#datatable-clientes tbody tr:nth-child(odd) {
+  background-color: #f2f2f2; /* Color de fondo suave para filas impares */
+}
+
+/* Estilo para las filas pares */
+#datatable-clientes tbody tr:nth-child(even) {
+  background-color: #e6e6e6; /* Color de fondo suave para filas pares */
+}
+
+#datatable-categorias thead th {
+  background-color: #17a2b8; /* Color de fondo */
+  color: white; /* Color del texto */
+  /* Otros estilos según sea necesario */
+}
+
+/* Estilo para las filas impares */
+#datatable-categorias tbody tr:nth-child(odd) {
+  background-color: #f2f2f2; /* Color de fondo suave para filas impares */
+}
+
+/* Estilo para las filas pares */
+#datatable-categorias tbody tr:nth-child(even) {
+  background-color: #e6e6e6; /* Color de fondo suave para filas pares */
+}
+
+#datatable-proveedores thead th {
+  background-color: #17a2b8; /* Color de fondo */
+  color: white; /* Color del texto */
+  /* Otros estilos según sea necesario */
+}
+
+/* Estilo para las filas impares */
+#datatable-proveedores tbody tr:nth-child(odd) {
+  background-color: #f2f2f2; /* Color de fondo suave para filas impares */
+}
+
+/* Estilo para las filas pares */
+#datatable-proveedores tbody tr:nth-child(even) {
+  background-color: #e6e6e6; /* Color de fondo suave para filas pares */
+}
+
+#datatable-productos thead th {
+  background-color: #17a2b8; /* Color de fondo */
+  color: white; /* Color del texto */
+  /* Otros estilos según sea necesario */
+}
+
+
+/* Estilo para las filas impares */
+#datatable-productos tbody tr:nth-child(odd) {
+  background-color: #f2f2f2; /* Color de fondo suave para filas impares */
+}
+
+/* Estilo para las filas pares */
+#datatable-productos tbody tr:nth-child(even) {
+  background-color: #e6e6e6; /* Color de fondo suave para filas pares */
+}
+
+.card-header {
+  background-color: #17a2b8; /* Color de fondo deseado */
+  color: white; /* Color de texto */
+  padding: 10px; /* Espacio interno */
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem; /* Ajusta el espaciado interno */
+  font-size: 0.875rem; /* Ajusta el tamaño de fuente */
+  line-height: 1.5; /* Ajusta la altura de línea */
+  background-color: transparent;
+}
+
+.ganancia {
+  color: red;
+}
+
+.pb-33 {
+  display: flex;
+  justify-content: space-between;
+}
+
+#modo {
+  text-align: right;
+  display: inline-block;
+  padding: 5px 10px;
+  border: 2px solid #000;
+  background-color: #17a2b8;
+  color: white;
+  text-align: right;
+}
+
+/* Estilo para los botones */
+.btn-container-delete button {
+  display: inline-block;
+  margin-right: 5px; /* Ajusta el margen según sea necesario */
+}
+
+.disabled {
+  pointer-events: none;
+  cursor: default;
+  color: #6c757d; /* Cambia el color del texto para indicar que está deshabilitado */
+  text-decoration: none; /* Elimina cualquier decoración de texto */
+}
+
+.select-btn-size {
+  height: calc(2.25rem + 2px);
+  padding: .75rem .75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: .2rem;
+ 
+}
+
+/* Estilo para texto con estado "CREADA" */
+.texto-azul {
+  color: rgb(232, 232, 65);
+}
+
+/* Estilo para texto con estado "APROBADA" */
+.texto-verde {
+  color: green;
+}
+
+/* Estilo para texto con estado "NO APROBADA" */
+.texto-rojo {
+  color: red;
+}
+
+/* Estilo para texto con estado "PAGADA" */
+.texto-celeste {
+  color: green;
+}
+
+/* Estilo para texto con estado "FACTURADA" */
+.texto-lila {
+  color: purple;
+}
