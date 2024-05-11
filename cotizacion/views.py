@@ -78,7 +78,7 @@ def handler500(request):
 
 @login_required
 def index(request):
-    template_name="index.html"
+    template_name="Index.html"
     return render(request,template_name)
 
 #region Productos
