@@ -16,7 +16,7 @@ from django.contrib.auth.decorators import login_required
 
 
 def Login(request):
-    template_name = "./layouts/Login.html"
+    template_name = "Login.html"
     response_data = {}
     context = {}
     empresas=Empresa.objects.filter(state=True)
@@ -65,20 +65,20 @@ def Logoutapp(request):
 
 def handler404(request, exception):
     context = {}
-    response = render(request, "./layouts/404.html", context=context)
+    response = render(request, "404.html", context=context)
     response.status_code = 404
     return response
 
 
 def handler500(request):
     context = {}
-    response = render(request, "./layouts/500.html", context=context)
+    response = render(request, "500.html", context=context)
     response.status_code = 500
     return response
 
 @login_required
 def index(request):
-    template_name="./layouts/index.html"
+    template_name="index.html"
     return render(request,template_name)
 
 #region Productos
@@ -88,12 +88,12 @@ def Productos_listado(request):
     context = {
         "productos": productos,
     }
-    template_name = "./layouts/Listado_productos.html"
+    template_name = "Listado_productos.html"
     return render(request, template_name, context)
 
 @login_required
 def Productos_visualizar(request,id):
-    template_name = "./layouts/Visualizar_productos.html"
+    template_name = "Visualizar_productos.html"
     producto=Producto.objects.get(id=id)
     categoria=Categoria.objects.filter(state=True)
     proveedor=Proveedor.objects.filter(state=True)
@@ -117,7 +117,7 @@ def Productos_visualizar(request,id):
 @login_required
 def UpdateCrudProductos(request):
     response_data = {}
-    template_name="./layouts/Visualizar_productos.html"
+    template_name="Visualizar_productos.html"
     if request.POST.get('action') =='actualizar_productos':
         try:
             id=request.POST.get('id')
@@ -175,7 +175,7 @@ class DeleteCrudProductos(View):
 
 @login_required    
 def Productos_form(request):
-    template_name = "./layouts/Nuevo_productos.html"
+    template_name = "Nuevo_productos.html"
     categoria=Categoria.objects.filter(state=True)
     proveedor=Proveedor.objects.filter(state=True)
     umedida=Umedida.objects.filter(state=True)
@@ -187,7 +187,7 @@ def Productos_form(request):
 @login_required
 def CreateCrudProductos(request):
     response_data = {}
-    template_name="./layouts/Nuevo_productos.html"
+    template_name="Nuevo_productos.html"
     if request.POST.get('action') =='registrar_productos':
         try:
             nombre_producto = request.POST.get('txtnomprod')
@@ -239,18 +239,18 @@ def Categorias_listado(request):
     context = {
         "Categorias": categorias,
     }
-    template_name = "./layouts/Listado_categorias.html"
+    template_name = "Listado_categorias.html"
     return render(request, template_name, context)
 
 @login_required
 def Categoria_form(request):
-    template_name = "./layouts/Nueva_categoria.html"
+    template_name = "Nueva_categoria.html"
     return render(request, template_name)
 
 @login_required
 def CreateCrudCategorias(request):
     response_data = {}
-    template_name="./layouts/Nueva_categoria.html"
+    template_name="Nueva_categoria.html"
     if request.POST.get('action') =='registrar_categoria':
         try:
             nombre_categoria = request.POST.get('txtnomcat')
@@ -267,7 +267,7 @@ def CreateCrudCategorias(request):
 
 @login_required
 def Categoria_visualizar(request,id):
-    template_name = "./layouts/Visualizar_categoria.html"
+    template_name = "Visualizar_categoria.html"
     categoria=Categoria.objects.get(id=id)
     context = {"categorias":
                categoria}
@@ -276,7 +276,7 @@ def Categoria_visualizar(request,id):
 @login_required
 def UpdateCrudCategorias(request):
     response_data = {}
-    template_name="./layouts/Visualizar_categoria.html"
+    template_name="Visualizar_categoria.html"
     if request.POST.get('action') =='actualizar_categoria':
         try:
             id=request.POST.get('id')
@@ -311,18 +311,18 @@ def Proveedores_listado(request):
     context = {
         "Proveedores": proveedores,
     }
-    template_name = "./layouts/Listado_proveedores.html"
+    template_name = "Listado_proveedores.html"
     return render(request, template_name, context)    
 
 @login_required
 def Proveedor_form(request):
-    template_name = "./layouts/Nuevo_proveedor.html"
+    template_name = "Nuevo_proveedor.html"
     return render(request, template_name)
 
 @login_required
 def CreateCrudProveedores(request):
     response_data = {}
-    template_name="./layouts/Nuevo_proveedor.html"
+    template_name="Nuevo_proveedor.html"
     if request.POST.get('action') =='registrar_proveedor':
         try:
             nombre_proveedor = request.POST.get('txtnomprov')
@@ -355,7 +355,7 @@ class DeleteCrudProveedores(View):
 
 @login_required    
 def Proveedor_visualizar(request,id):
-    template_name = "./layouts/Visualizar_proveedor.html"
+    template_name = "Visualizar_proveedor.html"
     proveedor=Proveedor.objects.get(id=id)
     context = {"proveedor":proveedor
                }
@@ -364,7 +364,7 @@ def Proveedor_visualizar(request,id):
 @login_required
 def UpdateCrudProveedor(request):
     response_data = {}
-    template_name="./layouts/Visualizar_proveedor.html"
+    template_name="Visualizar_proveedor.html"
     if request.POST.get('action') =='actualizar_proveedor':
         try:
             id=request.POST.get('id')
@@ -395,18 +395,18 @@ def Clientes_listado(request):
     context = {
         "Clientes": clientes,
     }
-    template_name = "./layouts/Listado_clientes.html"
+    template_name = "Listado_clientes.html"
     return render(request, template_name, context)   
 
 @login_required
 def Cliente_form(request):
-    template_name = "./layouts/Nuevo_cliente.html"
+    template_name = "Nuevo_cliente.html"
     return render(request, template_name)
 
 @login_required
 def CreateCrudClientes(request):
     response_data = {}
-    template_name="./layouts/Nuevo_cliente.html"
+    template_name="Nuevo_cliente.html"
     if request.POST.get('action') =='registrar_cliente':
         try:
             nombre_cliente = request.POST.get('txtnomclie')
@@ -439,7 +439,7 @@ class DeleteCrudClientes(View):
 
 @login_required    
 def Cliente_visualizar(request,id):
-    template_name = "./layouts/Visualizar_cliente.html"
+    template_name = "Visualizar_cliente.html"
     cliente=Cliente.objects.get(id=id)
     context = {"cliente":cliente
                }
@@ -448,7 +448,7 @@ def Cliente_visualizar(request,id):
 @login_required
 def UpdateCrudCliente(request):
     response_data = {}
-    template_name="./layouts/Visualizar_cliente.html"
+    template_name="Visualizar_cliente.html"
     if request.POST.get('action') =='actualizar_cliente':
         try:
             id=request.POST.get('id')
@@ -483,7 +483,7 @@ class AutocompleteClientes(View):
     
 @login_required
 def Listar_cotizaciones(request):
-    template_name="./layouts/Listado_cotizaciones.html"
+    template_name="Listado_cotizaciones.html"
     cotizaciones=Cotizacion.objects.filter(state=True)#orm QUERYSET
     cotizaciones_ordenadas = cotizaciones.order_by('fecha_cotizacion')
     context = {
@@ -507,7 +507,7 @@ def incrementar_detalle(request):
 def Grabar_item_cotizacion(request):
     response_data = {}
     lstdetallecotizacion = request.session.get('lstdetallecotizacion', [])
-    template_name="./layouts/cotizacion.html"
+    template_name="cotizacion.html"
     if request.POST.get('action') =='registrar_cotizacion':
         try:
            
@@ -579,7 +579,7 @@ def Grabar_item_cotizacion(request):
 def Cotizacion_crear(request,numcot,tipo,actualizar):
     response_data = {}
     context={}
-    template_name="./layouts/cotizacion.html"
+    template_name="cotizacion.html"
     if request.method == 'GET':
         lstdetallecotizacion = request.session.get('lstdetallecotizacion', {})
         context = {
@@ -684,7 +684,7 @@ def grabar_cotizacion(data_items, numcot,tipocot,cliente,evento,fecha,capacidad,
 
 @login_required
 def Cancelar_cotizacion(request):
-    template_name="./layouts/cotizacion.html"
+    template_name="cotizacion.html"
     if request.method == 'POST':
         if 'lstdetallecotizacion' in request.session:
             del request.session['lstdetallecotizacion']
@@ -696,7 +696,7 @@ def Cancelar_cotizacion(request):
 def Cotizacion_visualizar(request,numcot,tipo,actualizar):
     response_data = {}
     context={}
-    template_name="./layouts/cotizacion.html"
+    template_name="cotizacion.html"
     if request.method == 'GET':
         
         cabeceracotizacion=Cotizacion.objects.get(pk=numcot)
@@ -794,7 +794,7 @@ class Eliminar_detalle_cotizacion(View):
 @login_required
 def modificar_item_cotizacion(request):
     response_data = {}
-    template_name="./layouts/cotizacion.html"
+    template_name="cotizacion.html"
     if request.POST.get('action') =='actualizar_item_cotizacion':
         try:
             id=request.POST.get('iddetalle')
@@ -905,7 +905,7 @@ def obtener_la_ultima_cotizacion(request):
 
 @login_required
 def visualizar_cotizacion(request,numcot):
-     template_path="./layouts/cotizacion_print.html"
+     template_path="cotizacion_print.html"
      template = get_template(template_path)
      cabeceracotizacion=Cotizacion.objects.get(pk=numcot)
      lstdetallecotizacion = DetalleCotizacion.objects.filter(cotizacion=numcot,

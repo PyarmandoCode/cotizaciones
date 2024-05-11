@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{% block title %}{% endblock %}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" type="text/css" href="/static/cotizacion/css/adminx.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="/static/cotizacion/css/styles.css" media="screen" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/material_blue.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha512-TZqjD1e2NwGO0/fMj4ZxNSl1VVvNjGO8YwT6Oo4BkcgeMkOrPjHn1GytmWl+/NmF/z8KX89mzBEkpTjQ8oH9nA==" crossorigin="anonymous" />
+
+
+  </head>
+  <body>
+    <div class="adminx-container">
+      {% include 'includes/navbar.html' %}
+      {% include 'includes/menu.html' %}
+     
+      {% block content %}
+      {% endblock%}
+
+  
+      
+        <script src="/static/cotizacion/js/jquery-3.2.1.min.js"></script>
+        <script src="/static/cotizacion/js/popper.min.js"></script>
+        <script src="/static/cotizacion/js/bootstrap.min.js"></script> 
+        <script src="/static/cotizacion/js/vendor.js"></script>
+        <script src="/static/cotizacion/js/adminx.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script src="/static/cotizacion/js/jquery.dataTables.min.js"></script>
+        <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script> 
+
+        
+      
+
+      
+     
+
+      {% block javascripts %}
+      {% endblock javascripts %}
+
+  
+
+  </body>

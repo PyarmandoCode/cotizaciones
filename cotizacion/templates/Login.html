@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Bienvenidos a Ludo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" type="text/css" href="/static/cotizacion/css/adminx.css" media="screen" />
+  </head>
+  <body>
+    <div class="adminx-container d-flex justify-content-center align-items-center">
+      <div class="page-login">
+        <div class="text-center">
+          <a class="navbar-brand mb-4 h1" href="login.html">
+            <img src="https://res.cloudinary.com/dream-music/image/upload/v1715120060/logos/COTIZACIONES_j8eahu.png" class="navbar-brand-image d-inline-block align-top mr-2" alt="">
+            SISTEMA WEB DE COTIZACIONES
+          </a>
+        </div>
+
+        <div class="card mb-0">
+    
+       
+          <div class="card-body">
+            <form class="login-form" id="formlogin" method="POST">{% csrf_token %}
+              <div class="form-group">
+                <label for="user" class="form-label">Usuario</label>
+                <input type="text" class="form-control" id="usuario" placeholder="Usuario">
+              </div>
+              <div class="form-group">
+                <label for="clave" class="form-label">Clave</label>
+                <input type="password" class="form-control" id="clave" placeholder="Clave">
+              </div>
+              <div class="form-group">
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="customCheck1">
+                  <label class="custom-control-label" for="customCheck1">Recuerdame</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="cmbempresa">Empresa</label>
+                <select class="form-control" id="cmbempresa">
+                  <option  value="" selected="selected">---SELECCIONE---</option>
+                    {% for item in empresas %}
+                        <option value="{{item.id}}">{{item.nombre}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+
+              <button type="submit" class="btn btn-sm btn-block btn-primary">Ingresar</button>
+            </form>
+          </div>
+          <div class="card-footer text-center">
+            <a href="#"><small>Olvidates tu password?</small></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/static/cotizacion/js/jquery-3.2.1.min.js"></script>
+    <script src="/static/cotizacion/js/popper.min.js"></script>
+    <script src="/static/cotizacion/js/bootstrap.min.js"></script> 
+    <script src="/static/cotizacion/js/vendor.js"></script>
+    <script src="/static/cotizacion/js/adminx.js"></script>
+
+    <script type="text/javascript">
+        // Login Page Flipbox control
+        $('.login-content [data-toggle="flip"]').click(function() {
+            $('.login-box').toggleClass('flipped');
+            return false;
+        });
+      </script>
+  
+   
+      <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+      <script>
+        $("#formlogin").submit(function (e) {
+            e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: '{% url "login" %}',
+                data: {
+                    usuario: $('#usuario').val(),
+                    clave: $('#clave').val(),
+                    empresa:$('#cmbempresa').val(),
+                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+                    action: 'post'
+                },
+                success: function (json) {
+                    if (json.loggedin) {
+                        Swal.fire(
+                            json.completo,
+                            json.msg,
+                            'success',
+                             ).then(function() {
+                             window.location.href = json.url
+                            }
+                        )
+                    } else {
+                        Swal.fire(
+                            'ERROR',
+                            json.msg,
+                            'error'
+                        )
+                    }
+                },
+                error: function (response) {
+                    console.log(response)
+                }
+            });
+        });
+    </script>
+
+  </body>
+</html>

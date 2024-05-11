@@ -1,0 +1,167 @@
+{% extends 'layouts/base.html' %}
+{% block title %} Agregar Proveedor {% endblock %} 
+
+{% block content %}
+
+<div class="adminx-content">
+  <div class="adminx-main-content">
+    <div class="container-fluid">
+
+      <nav aria-label="breadcrumb" role="navigation">
+        <ol class="breadcrumb adminx-page-breadcrumb">
+          <li class="breadcrumb-item"><a href="">Dashboard</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'listado_proveedores' %}">Proveedores</a></li>
+        </ol>
+      </nav>
+
+      <div class="pb-3">          
+        <h1>Agregar Proveedores</h1>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="card mb-grid">
+            <div
+              class="card-header d-flex justify-content-between align-items-center"
+            >
+              <div class="card-header-title">Ingrese el Nuevo Proveedor</div>
+
+              <nav class="card-header-actions">
+                <a
+                  class="card-header-action"
+                  data-toggle="collapse"
+                  href="#card1"
+                  aria-expanded="false"
+                  aria-controls="card1">
+                  <i data-feather="minus-circle"></i>
+                </a>
+
+                <div class="dropdown">
+                  <a
+                    class="card-header-action"
+                    href="#"
+                    role="button"
+                    id="card1Settings"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    <i data-feather="settings"></i>
+                  </a>
+
+                  
+                </div>
+
+                <a href="#" class="card-header-action">
+                  <i data-feather="x-circle"></i>
+                </a>
+              </nav>
+            </div>
+            <div class="card-body collapse show" id="card1">       
+               <form class="forms-sample" id="formproveedor" method="POST">{% csrf_token %} 
+                <div class="form-group">
+                  <label class="form-label" for="txtnomprov">Nombre</label>
+                  <input class="form-control mb-2" type="text"  id="txtnomprov"  required>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="txtrucprov">RUC</label>
+                  <input class="form-control mb-2" type="text"  id="txtrucprov"  required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="txtdirprov">Direccion</label>
+                    <input class="form-control mb-2" type="text"  id="txtdirprov"  required>
+                  </div>
+
+                  
+
+                  <div class="form-group">
+                    <label class="form-label" for="txttelprov">Telefono</label>
+                    <input class="form-control mb-2" type="text"  id="txttelprov"  required>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label class="form-label" for="txtemailprov">Email</label>
+                    <input class="form-control mb-2" type="Email"  id="txtemailprov"  required>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="txtcontactoprov">Contacto</label>
+                    <input class="form-control mb-2" type="text"  id="txtcontactoprov"  required>
+                  </div>
+
+                <div class="form-group">
+                  <div class="custom-control custom-checkbox">
+                    <input
+                      type="checkbox"
+                      class="custom-control-input"
+                      id="chkestadoprov"
+                    />
+                    <label class="custom-control-label" for="chkestadoprov"
+                      >Activo</label
+                    >
+                  </div>
+                </div>
+                <button type="submit"   class="btn btn-icon btn-info">Grabar</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+</div>
+
+{% block javascripts %}
+
+
+<script>
+  var formData = new FormData();
+  $("#formproveedor").submit(function (e) {
+      e.preventDefault();
+      
+      formData.append('txtnomprov', $('#txtnomprov').val())
+      formData.append('txtrucprov',$('#txtrucprov').val())
+      formData.append('txtdirprov',$('#txtdirprov').val())
+      formData.append('txttelprov',$('#txttelprov').val())
+      formData.append('txtemailprov',$('#txtemailprov').val())
+      formData.append('txtcontactoprov',$('#txtcontactoprov').val())
+      formData.append('action','registrar_proveedor')
+      formData.append('csrfmiddlewaretoken', '{{ csrf_token }}')
+      $.ajax({
+          type: 'POST',
+          url: '{% url "registrar_proveedores" %}',
+          data: formData,
+          cache: false,
+          processData: false,
+          contentType: false,
+          enctype: 'multipart/form-data',
+          success: function (json) {
+              if (json.flag) {
+                  Swal.fire(
+                      'Felicitaciones',
+                      json.msg,
+                      'success'
+                      ).then(() => {
+                        window.location.href = '/listado_proveedores';  
+                        });
+              } else {
+                  Swal.fire(
+                      'ERROR',
+                      json.msg,
+                      'error'
+                      
+                  )
+              }
+          },
+          error: function (response) {
+              console.log(response)
+          }
+      });
+  });
+</script> 
+
+
+
+{% endblock javascripts %}
+
+{% endblock %}

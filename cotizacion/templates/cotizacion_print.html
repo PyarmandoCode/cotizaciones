@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Cotizacion</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+   
+  </head>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid black;
+      padding: 2px;
+      text-align: left;
+    }
+
+    th {
+        background-color: #17a2b8;
+        color: white; /* Cambiar el color del texto a blanco para que se destaque en el fondo naranja */
+    }
+
+    .input-container {
+        margin: 10px;
+    }
+
+   
+  </style>  
+ 
+
+  <body>
+    <div style="text-align: right;" >
+       <img src={{logopath}} alt="Descripción de la imagen" width="150">      
+    </div>
+
+    <form>
+        <table>
+            <tr>
+                <td colspan="4">
+                    <div class="input-container">
+                        <p><b>Cotizacion</b> {{cabecera}}</p>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="input-container">
+                        <p><b>Cliente</b> {{cabecera.cliente}}</p>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-container">
+                        <p><b>Ruc</b> {{cabecera.cliente.ruc}}</p>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-container">
+                        <p><b>Contacto</b> {{cabecera.cliente.contacto}}</p>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-container">
+                        <p></p>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td >
+                    <div class="input-container">
+                        <p><b>Evento</b> {{cabecera.nombre_evento}}</p>
+                    </div>
+                </td>
+                <td >
+                    <div class="input-container">
+                        <p><b>Fecha</b> {{ cabecera.fecha_cotizacion|date:'d/m/Y' }}</p>
+                    </div>
+                </td>
+                <td >
+                    <div class="input-container">
+                        <p><b>Capacidad</b>  {{cabecera.capacidad}}</p>
+                    </div>
+                </td>
+                <td >
+                    <div class="input-container">
+                        <p><b>Lugar</b> {{cabecera.lugar}}</p>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <div class="input-container">
+                        <p><b>Comentario</b> {{cabecera.comentario}}</p>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </form>
+
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Servicios</th>
+                    <th>Detalle</th>
+                    <th>Precio</th>
+                    <th>Ctd</th>
+                    <th>Fechas</th>
+                    <th>Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                  {% for item in detalle %}  
+                  <tr id="item-{{forloop.counter}}">
+                    <td> {{ forloop.counter }} </td> 
+                    <td>{{item.servicio}}</td>
+                    <td>{{item.detalle}}</td>
+                    <td>{{item.precio|floatformat:"2"}}</td>
+                    <td>{{item.cantidad}}</td>
+                    <td>{{item.fechas}}</td>
+                    <td>{{item.costo|floatformat:"2"}}</td>
+                  </tr>
+                {% endfor %}   
+                </tbody>
+            </table>
+
+            <table>
+                <tr>
+                    <th style="width: 15%;">Descripción</th>
+                    <th style="width: 10%;">Costo S/.</th>
+                </tr>
+                <tr>
+                    <td >Sub-Total</td>
+                    <td >{{cabecera.total}}</td>
+                </tr>
+                <tr>
+                    <td >Fee(12%)</td>
+                    <td >{{cabecera.fee}}</td>
+                </tr>
+                <tr>
+                    <td >Total</td>
+                    <td >{{ total }}</td>
+                </tr>
+                <tr>
+                    <td >IGV</td>
+                    <td >{{ igv }}</td>
+                    
+                </tr>
+                <tr>
+                    <td >Gran Total Venta</td>
+                    <td >{{ total_ven }}</td>
+                </tr>
+            </table>
+  </body>
+ </html> 

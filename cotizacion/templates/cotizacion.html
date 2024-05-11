@@ -1,0 +1,1258 @@
+{% extends 'layouts/base.html' %}
+{% block title %}Pagina Principal{% endblock %}
+{% block content %}
+{% load custom_filters %}
+<div class="adminx-content">
+  <div class="adminx-main-content">
+    <div class="container-fluid">
+      
+      <!-- BreadCrumb -->
+      <nav aria-label="breadcrumb" role="navigation">
+        <ol class="breadcrumb adminx-page-breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'index_home' %}">Dashboard</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'listar_cotizaciones' %}">Cotizaciones</a></li>
+        </ol>
+      </nav>
+        <div class="pb-33">
+          <h1 id="titulo">Cotizacion</h1>
+          <h2 id="modo" style="text-align: right;">Modo</h1>
+        </div>
+
+        <div class="card mb-grid">
+          <div class="card-header">
+            <div class="card-header-title">Datos de la Cotizacion</div>
+          </div>
+          <div class="card-body">
+           
+          <form id="frmcabeceracotizacion" method="POST"  enctype="multipart/form-data">{% csrf_token %}  
+
+            <div class="form-row">  
+
+        
+              <div class="col-md-3 mb-3">
+                <label class="form-label"  id="lblnumcotizacion" class="oculto" >NroCotizacion</label>
+                <input type="text" class="form-control" id="numcotizacion" 
+                required="required" autocomplete="off" placeholder="#Cotizacion" 
+                value={{cabecera}}
+                disabled>
+              </div>
+            </div>  
+
+              <div class="form-row">
+                  <div class="col-md-3 mb-3">
+                    <label class="form-label"  id="lblcliente" class="oculto" >Cliente</label>
+                    <input type="text" class="form-control" id="cliente" required="required" autocomplete="off" placeholder="Cliente" onkeydown="focusFlatpickr(event, 'fecha','comentario')" value="{{cabecera.cliente}}" >
+                  <ul id="suggestions-list-cliente" ></ul>
+                  </div>
+
+                  <input type="hidden" id="idcliente">
+  
+                  <div class="col-md-3 mb-3">
+                    <label class="form-label" for="ruc"  id="lblruc" class="oculto" >Ruc</label>
+                    <input type="text" class="form-control" id="ruc" class="oculto" placeholder="Ruc" required value="{{cabecera.cliente.ruc}}" disabled>
+                  </div>
+                
+                <div class="col-md-6 mb-3">
+                  <label class="form-label" for="contacto"  id="lblcontacto">Contacto</label>
+                  <input type="text" class="form-control" id="contacto" placeholder="Contacto"  required value="{{cabecera.cliente.contacto}}" disabled>
+                </div>
+              </div>
+
+              <div class="form-row">
+
+                <div class="col-md-3 mb-3" id="cntevento" class="oculto">
+                  <label class="form-label" for="evento"  id="lblevento" class="oculto" >Evento</label>
+                  <input type="text" class="form-control" id="evento" class="oculto" onkeydown="focusFlatpickr(event, 'fecha','capacidad')" placeholder="Evento" data-input data-format="d/m/Y" value="{{cabecera.nombre_evento}}">
+                </div>
+
+                <div class="col-md-3 mb-3" id="cntfecha" class="oculto">
+                  <label class="form-label"  id="lblfecha" class="oculto" >Fecha</label>
+                  <input type="text" class="form-control" id="fecha" placeholder="Fecha" value="{{ cabecera.fecha_cotizacion|date:'d/m/Y' }}">
+                </div>
+
+                <div class="col-md-3 mb-3" id="cntcapacidad" class="oculto">
+                  <label class="form-label" for="capacidad"  id="lblcapacidad" class="oculto" >Capacidad</label>
+                  <input type="text" class="form-control" id="capacidad" class="oculto"  onkeydown="focusNextInput(event,'lugar')" placeholder="Capacidad" value="{{cabecera.capacidad}}">
+                </div>
+
+                <div class="col-md-3 mb-3" id="cntlugar" class="oculto">
+                  <label class="form-label" for="lugar"  id="lblugar" class="oculto" >Lugar</label>
+                  <input type="text" class="form-control" id="lugar" class="oculto" onkeydown="focusNextInput(event,'comentario')" placeholder="Lugar" value="{{cabecera.lugar}}" >
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="comentario" class="form-label">Comentario:</label>
+                  <br>
+                  <textarea id="comentario" name="comentario" rows="5"  maxlength="280" >{{cabecera.comentario}}</textarea>
+                </div> 
+              </div>
+          </div>
+        </div>
+
+    <div class="pb-3 button-row"  >
+      <a href="#" class="btn btn-lg btn-labeled-right btn-info btn-sm mr-2 btndetalle">
+        <span class="btn-pill btn-label">
+          <span class="oi oi-list" aria-hidden="true"></span>
+        </span>
+        
+        <span class="btn-text">Agregar</span>
+      </a>  
+    </div>
+        <div class="row">
+          <div class="col">
+            <div class="card mb-grid">
+              <div class="table-responsive-md">
+                <table  class="table table-actions table-striped table-hover mb-0"  id=datatable-cotizacion data-table>
+                  <thead>
+                    <tr>
+                    
+                      <th scope="col">#</th>
+                      <th scope="col">Servicios</th>
+                      <th scope="col">Detalle del Entregable</th>
+                      <th scope="col">Precio Compra</th>
+                      <th scope="col">Precio Venta</th>
+                      <th scope="col">Ctd</th>
+                      <th scope="col">Fechas</th>
+                      <th scope="col">Costo Venta Soles</th>
+                      <th scope="col">Costo Compra Soles</th>
+                      <th scope="col"></th>
+                      <th scope="col">indice</th>
+                      <th scope="col"></th>
+                      
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                    {% for item in detalle %}  
+                    <tr id="item-{{forloop.counter}}">
+                      <td> {{ forloop.counter }} </td> 
+                      <td>{{item.servicio}}</td>
+                      <td>{{item.detalle}}</td>
+                      <td>{{item.preciocompra|floatformat:"2"|replace_comma}}</td>
+                      <td>{{item.precio|floatformat:"2"|replace_comma}}</td>
+                      <td>{{item.cantidad}}</td>
+                      <td>{{item.fechas}}</td>
+                      <td>{{item.costo|floatformat:"2"|replace_comma }}</td>
+                      <td>{{item.costocompra|floatformat:"2"|replace_comma }}</td>
+                      <td class="btn-container-delete">
+                        <a href="#" class="btn btn-icon btn-sm mr-2 btndetallemodal">
+                          <i data-feather="eye"></i>
+                        </a>
+                        <a href="#" class="btn btn-icon btn-sm mr-2 bteliminardetalle" onClick="deleteitemcotizacion({{ forloop.counter }})" id="bteliminardetalle">
+                          <i data-feather="trash-2"></i>
+                        </a>
+                      </td>
+                      <td> {{ item.id }} </td>
+                      <td >
+                        <a href="#" class="btn btn-icon btn-sm mr-2 btndetallemodal">
+                          <i data-feather="eye"></i>
+                        </a>
+
+                        <a href="#" class="btn btn-icon btn-sm mr-2 bteliminardetallebd" id="bteliminardetallebd" onClick="deleteitemcotizacionbd({{ item.id }})">
+                          <i data-feather="trash-2"></i>
+                        </a>
+                      </td>
+                    </tr>
+                  {% endfor %}   
+                   
+                  </tbody>
+                  <thead class="header-totales">
+                    <tr>
+                        <th colspan="2">Descripción</th>
+                        <th>Costo Total Soles</th>
+                        <!-- Aquí van otras columnas del encabezado -->
+                    </tr>
+                </thead>
+                
+                  <tfoot class="footer-totales">
+                    <tr>
+                        <th colspan="2" class="subtotal">Sub-Total:</th>
+                        <th id="totalSubt" class="subtotal"></th>
+                    </tr>
+                    <tr>
+                        <th colspan="2" class="fee">Fee(12%):</th>
+                        <th id="totalFee" class="fee"></th>
+                    </tr>
+                    <tr>
+                        <th colspan="2" class="total">Total:</th>
+                        <th id="totalTotal" class="total"></th>
+                    </tr>
+                    <tr>
+                        <th colspan="2" class="igv">IGV:</th>
+                        <th id="totalIgv" class="igv"></th>
+                    </tr>
+                    <tr>
+                        <th colspan="2" class="grantotal">Gran Total Venta:</th>
+                        <th id="totalGran" class="grantotal"></th>
+                    </tr>
+                    <tr>
+                      <th colspan="2" class="totalcompra">Total Compra:</th>
+                      <th id="totalcompra" class="totalcompra"></th>
+                  </tr>
+                  <tr>
+                    <th colspan="2" class="ganancia">Ganancia:</th>
+                    <th id="ganancia" class="ganancia"></th>
+                </tr>
+                </tfoot>
+                </table>
+                 
+              <div class="col-md-3 mb-3">
+                <label for="estadocotizacion" id="lblestadocot">Selecciona una opción:</label>
+                <select class="form-control btn-sm btn-sm mb-2 select-btn-size" id="estadocotizacion">
+                  {% for estado in estadocotizacion %}
+              
+                     <option value="{{ estado.id }}" {% if valor_bd and estado.id == valor_bd %} selected {% endif %}>{{ estado.Estado }}</option>
+                  {% endfor %}  
+                </select>
+
+           <div class="pb-3 button-row">
+                <div class="btn-group" role="group" aria-label="Botones de acción">
+                    <!-- Primer botón -->
+                    <a href="#" class="btn btn-lg btn-info btn-sm btngrabar mr-2" id="btngrabar">
+                        <span class="oi oi-check mr-1" aria-hidden="true"></span> <!-- Moví el icono a la izquierda -->
+                        <span class="btn-text">Grabar</span>
+                    </a>
+                    <!-- Segundo botón -->
+                    <a href="#" class="btn btn-lg btn-secondary btn-sm btncancelar mr-2" id="btncancelar1">
+                        <span class="oi oi-x mr-1" aria-hidden="true"></span> <!-- Moví el icono a la izquierda -->
+                        <span class="btn-text">Cancelar</span>
+                    </a>
+                    <!-- Tercer botón -->
+                    {% if tipo_cot == 1 %}
+                        <a href="{% url 'visualizar_cotizacion_imprimir' cabecera  %}" class="btn btn-lg btn-primary btn-sm btnimprimir" id="btnimprimir">
+                          <span class="oi oi-document mr-1" aria-hidden="true"></span> 
+                          <span class="btn-text">Imprimir</span>
+                        </a>
+                    {% endif %}    
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</form>
+
+  <div class="modal fade" id="ModalItemCotizacion" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header fondo-header">
+           <p style="color:white;" class="modal-title" id="ModalItemCotizacion">Ingrese la Siguiente Información</p>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="frmitemcotizacion" method="POST"  enctype="multipart/form-data">{% csrf_token %}
+              <div class="mb-3">
+              
+                <label for="servicio" class="col-form-label">Servicios:</label>
+                <input type="text" class="form-control" id="item_servicio" required="required" autocomplete="off" >
+                <ul id="suggestions-list"></ul>
+                <input type="hidden" class="form-control" id="id_servicio" >
+              
+                <label for="concepto" class="col-form-label">Detalle de Entregable:</label>
+                <br>
+
+                <textarea id="detalle" name="detalle" rows="5" cols="48" maxlength="250" required ></textarea>
+                <br>
+
+                <label for="preciocompra" class="col-form-label">Precio Costo:</label>
+                <input type="number" class="form-control" id="preciocompra" required="required" oninput="hallar_total()" step="any">
+
+                <label for="precio" class="col-form-label">Precio Venta:</label>
+                <input type="number" class="form-control" id="precio" required="required" oninput="hallar_total()" step="any">
+
+              
+                <label for="cantidad" class="col-form-label">Cantidad:</label>
+                <input type="number" class="form-control" id="cantidad" required="required" oninput="hallar_total()">
+
+          
+                <label for="fechas" class="col-form-label">Fechas:</label>
+                <input type="number" class="form-control" id="fechas" required="required" oninput="hallar_total()">
+
+                <label for="total" class="col-form-label">Costo Total Venta Soles:</label>
+                <input type="number" class="form-control" id="total" required="required" step="any">
+
+                <label for="costocompra" class="col-form-label">Costo Total Compra Soles:</label>
+                <input type="number" class="form-control" id="costocompra" required="required" step="any">
+                <input type="text" class="form-control" id="iddetalle" >
+              </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="submit" class="btn btn-icon btn-info">Grabar</button>
+        </div>
+    </form>
+      </div>
+    </div>
+  </div>
+</div> 
+
+{% block javascripts %}
+<script>
+
+$(document).ready(function() {
+  var table = $('[data-table]').DataTable({
+  language: {
+              "decimal": "",
+              "emptyTable": "No hay información",
+              "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+              "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+              "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+              "infoPostFix": "",
+              "thousands": ",",
+              "lengthMenu": "Mostrar _MENU_ Entradas",
+              "loadingRecords": "Cargando...",
+              "processing": "Procesando...",
+              "search": "Buscar:",
+              "zeroRecords": "Sin resultados encontrados",
+              "paginate": {
+                  "first": "Primero",
+                  "last": "Ultimo",
+                  "next": "Siguiente",
+                  "previous": "Anterior"
+              }
+            },
+            bLengthChange: true,
+            "iDisplayLength": 10,
+            bInfo: false,
+            responsive: true,
+            "bAutoWidth": false,
+            "columns": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+             
+              { "visible": false },
+              null,
+            ]
+        });
+  });
+    
+ 
+  </script>
+  
+  <script>
+    $(document).ready(function () {
+        var selectedIndex = -1; // Índice del elemento seleccionado
+        $('#item_servicio').on('input', function () {
+            var query = $(this).val();
+            $.ajax({
+              url: '{% url 'autocomplete'  %}',  // Ruta a tu vista de autocompletado
+                type: 'GET',
+                data: {'query': query},
+                dataType: 'json',
+                success: function (data) {
+                    var suggestions = data.suggestions;
+                    $('#suggestions-list').empty();
+
+                    // Mostrar las sugerencias en la lista
+                    suggestions.forEach(function (item, index) {
+                        var listItem = $('<li>').text(item.nombre);
+
+                        // Agregar la clase 'selected' al elemento seleccionado
+                        if (index === selectedIndex) {
+                            listItem.addClass('selected');
+                        }
+
+                        listItem.data('id', item.id);
+                    
+                        listItem.click(function() {
+                          $('#id_servicio').val(item.id);// Mostrar el campo 'contacto' asociado al valor seleccionado con clik                         
+                      });
+                        $('#suggestions-list').append(listItem);
+                    });
+                },
+                error: function (error) {
+                    console.error('Error al obtener sugerencias:', error);
+                }
+            });
+        });
+
+        // Manejar clic en una sugerencia
+        $('#suggestions-list').on('click', 'li', function () {
+            var suggestion = $(this).text();
+            var currentValue = $('#item_servicio').val();
+            var cursorPosition = $('#item_servicio')[0].selectionStart;
+            var newValue = currentValue.substring(0, cursorPosition) + suggestion + currentValue.substring(cursorPosition);
+            $('#item_servicio').val(newValue);
+            
+            // Borra el carácter actual en el input
+            $('#item_servicio').val(function(_, val) {
+                return val.substr(0, cursorPosition - 4) + val.substr(cursorPosition);
+            });
+
+            $('#suggestions-list').empty(); // Limpiar la lista
+        });
+        // Manejar las teclas de flecha
+       $('#item_servicio').on('keydown', function (e) {
+        var selectedItem = $('#suggestions-list .selected');
+        var suggestions = $('#suggestions-list li');
+        var currentSelected = $('#suggestions-list li.selected');
+        console.log('tecla presionada',e.key);
+
+        switch (e.key) {
+            case 'ArrowUp': // Flecha arriba
+                selectedIndex = Math.max(0, selectedIndex - 1);
+                console.log('selectedIndex:', selectedIndex);
+                break;
+            case 'ArrowDown': // Flecha abajo
+                selectedIndex = Math.min(suggestions.length - 1, selectedIndex + 1);
+                break;
+            case 'Enter': // Enter
+                if (currentSelected.length > 0) {
+                    var suggestion = currentSelected.text();
+                    var currentValue = $('#item_servicio').val();
+                    var cursorPosition = $('#item_servicio')[0].selectionStart;
+                    var newValue = currentValue.substring(0, cursorPosition) + suggestion + currentValue.substring(cursorPosition);
+                    $('#item_servicio').val(newValue);
+                    var id = selectedItem.data('id');
+                    $('#id_servicio').val(id);
+                    
+                    // Borra el carácter actual en el input
+                    $('#item_servicio').val(function(_, val) {
+                        return val.substr(0, cursorPosition - 4) + val.substr(cursorPosition);
+                    });
+
+                    $('#suggestions-list').empty(); // Limpiar la lista
+                    selectedIndex = -1; // Reinicia el índice seleccionado
+                }
+                break;
+                
+            default:
+                return; // Salir si no es una tecla de flecha o Enter
+        }
+
+            // Quitar la clase 'selected' de todos los elementos y agregarla al elemento seleccionado
+            suggestions.removeClass('selected');
+            $(suggestions[selectedIndex]).addClass('selected');
+           
+            // Mover el scroll hacia abajo
+            var container = $('#suggestions-list');
+            var scrollTo = $(suggestions[selectedIndex]).position().top - container.position().top + container.scrollTop();
+            container.scrollTop(scrollTo);
+        });
+    });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      flatpickr("#fecha", {
+          dateFormat: "d/m/Y",
+          locale: "es",
+      });
+  });
+  
+</script>
+
+
+<script>
+ // Función para obtener el parámetro de la URL por su nombre
+ function obtenerParametroDeURL() {
+  var url = window.location.pathname; // Obtener la parte de la URL después del dominio
+  var segmentos = url.split('/'); // Dividir la URL en segmentos usando "/"
+  var parametrotipoeven = segmentos[segmentos.length - 2]; //parametro para evento o servicio
+  var parametroactualizar = segmentos[segmentos.length - 1]; //parametro para actualizar o insertar
+  localStorage.setItem("selectsereven", parametrotipoeven);
+  localStorage.setItem('selectactualizar',parametroactualizar);
+
+  var parametros = {
+    parametro1: parametrotipoeven,
+    parametro2: parametroactualizar
+ };
+  return parametros;
+}
+
+function ocultarbotoneliminar() {
+  var resultado=obtenerParametroDeURL();
+  parametroactualizar = resultado.parametro2;
+  var botonbd = document.getElementById("bteliminardetallebd");
+  var boton = document.getElementById("bteliminardetalle");
+  var selectestado = document.getElementById("estadocotizacion");
+  var lblestado = document.getElementById("lblestadocot");
+ 
+
+
+  var table = $('#datatable-cotizacion').DataTable();
+  if (parametroactualizar==0)
+  {
+    table.column(11).visible(false);
+    selectestado.style.display = "none";
+    lblestado.style.display = "none";
+    
+    
+   }else {
+    table.column(9).visible(false);
+    selectestado.style.display = "block";
+    lblestado.style.display = "block";
+   
+    //botonbd.style.display="block";
+    //boton.style.display="none";
+
+   }
+}
+
+function mostrarOcultarInputs() {
+  var resultado=obtenerParametroDeURL();
+  var select=resultado.parametro1;
+  var elementos = {
+      "1": ["evento", "lblevento", "lblfecha", "fecha", "capacidad", "lblcapacidad", "lugar", "lblugar", "cntcapacidad", "cntlugar", "cntevento", "cntfecha"],
+      "2": ["evento", "lblevento", "lblfecha", "fecha", "capacidad", "lblcapacidad", "lugar", "lblugar", "cntcapacidad", "cntlugar", "cntevento", "cntfecha"]
+  };
+
+  // Función para establecer el estilo de visualización de los elementos
+  function establecerEstilo(elementoId, estilo) {
+      var elemento = document.getElementById(elementoId);
+      if (elemento) {
+          elemento.style.display = estilo;
+      }
+  }
+
+  // Configurar el estilo de visualización para cada elemento
+  elementos[select].forEach(function(elementoId) {
+      establecerEstilo(elementoId, select === "2" ? "none" : "block");
+  });
+  
+  // Configurar la fecha para que siempre se muestre
+  establecerEstilo("lblfecha", "block");
+  establecerEstilo("fecha", "block");
+  establecerEstilo("cntfecha", "block");
+
+  
+  // Configurar el texto de #titulo según el valor de select
+  var titulo = select === "1" ? "Evento" : "Servicio";
+  document.getElementById("titulo").textContent = titulo;
+
+  // Enfocar en el elemento #cliente
+  document.getElementById("cliente").focus();
+}
+
+$(document).ready(function() {
+  mostrarOcultarInputs(); // Cargar las opciones correspondientes
+  ocultarbotoneliminar();
+});
+
+</script>
+
+<script>
+  function hallar_total() {
+    var precio = parseFloat(document.getElementById("precio").value);
+    var preciocompra = parseFloat(document.getElementById("preciocompra").value);
+    var cantidad = parseFloat(document.getElementById("cantidad").value);
+    var fechas = parseFloat(document.getElementById("fechas").value);
+    var total = document.getElementById("total");
+    var costocompra = document.getElementById("costocompra");
+  
+  
+    // Verificar si todos los campos tienen valores numéricos
+    if (!isNaN(precio) && !isNaN(cantidad) && !isNaN(fechas)) {
+        var total_var = precio * cantidad * fechas; // Multiplicar precio, cantidad y fechas
+        var total_inte = preciocompra * cantidad * fechas; // Multiplicar precio, cantidad y fechas
+        total.value = total_var.toFixed(2); // Mostrar el total con dos decimales
+        costocompra.value = total_inte.toFixed(2); // Mostrar el total con dos decimales
+    } else {
+        total.value = "¡Ingrese números válidos!";
+    }
+  }
+  
+</script>
+
+
+<script>
+  //Focus para un control comun
+  function focusNextInput(event, nextInputId) {
+    if (event.key === "Enter") {
+      event.preventDefault(); // Evita que el formulario se envíe si está dentro de uno
+      document.getElementById(nextInputId).focus();
+    }
+  }
+  </script>
+
+  <script>
+    $(document).ready(function() {
+     flatpickr("#fecha", {
+      dateFormat: "d/m/Y",
+      locale: "es",
+      onClose: function(selectedDates, dateStr, instance) {
+        if (selectedDates.length > 0) {
+          document.getElementById('capacidad').focus();
+        }
+      }
+    });
+  });
+  </script>
+
+  <script>
+    function focusFlatpickr(event, flatpickrId,nextInputId) {
+      if (event.key === "Enter") {
+        event.preventDefault(); // Evitar comportamiento predeterminado del "Enter"
+        const flatpickrInput = document.getElementById(flatpickrId);
+        if (flatpickrInput._flatpickr) {
+          flatpickrInput._flatpickr.open(); // Abrir el calendario Flatpickr
+        }
+      }
+    }
+  </script>  
+   
+<script>
+  $(document).ready(function () {
+      var selectedIndex = -1; // Índice del elemento seleccionado
+      $('#cliente').on('input', function () {
+          var query = $(this).val();
+          $.ajax({
+            url: '{% url 'autocompletecliente'  %}',  // Ruta a tu vista de autocompletado
+              type: 'GET',
+              data: {'query': query},
+              dataType: 'json',
+              success: function (data) {
+                  var suggestions = data.suggestions;
+                  $('#suggestions-list-cliente').empty();
+
+                  // Mostrar las sugerencias en la lista
+                  suggestions.forEach(function (item, index) {
+                      var listItem = $('<li>').text(item.nombre);
+                      // Agregar la clase 'selected' al elemento seleccionado
+                      if (index === selectedIndex) {
+                          listItem.addClass('selected');
+                      }
+
+                      // Almacena el valor del campo 'ruc' en un atributo de datos para luego mostrarlos cuando se pulsa enter
+                    listItem.data('ruc', item.ruc);
+                    listItem.data('contacto', item.contacto);
+                    listItem.data('id', item.id);
+
+                       // Agregar un evento click a cada elemento de la lista
+                    listItem.click(function() {
+                      $('#contacto').val(item.contacto);// Mostrar el campo 'contacto' asociado al valor seleccionado con clik
+                      $('#ruc').val(item.ruc); // Mostrar el campo 'ruc' asociado al valor seleccionado
+                      $('#idcliente').val(item.id);
+                      
+                      $('#evento').focus();
+                  });
+                      $('#suggestions-list-cliente').append(listItem);
+                  });
+                  
+              },
+              error: function (error) {
+                  console.error('Error al obtener sugerencias:', error);
+              }
+          });
+      });
+
+      // Manejar clic en una sugerencia
+      $('#suggestions-list-cliente').on('click', 'li', function () {
+          var suggestion = $(this).text();
+          var currentValue = $('#cliente').val();
+          var cursorPosition = $('#cliente')[0].selectionStart;
+          var newValue = currentValue.substring(0, cursorPosition) + suggestion + currentValue.substring(cursorPosition);
+          $('#cliente').val(newValue);
+          
+          // Borra el carácter actual en el input
+          $('#cliente').val(function(_, val) {
+              return val.substr(0, cursorPosition - 4) + val.substr(cursorPosition);
+          });
+
+          $('#suggestions-list-cliente').empty(); // Limpiar la lista
+      });
+
+      // Manejar las teclas de flecha
+   
+     $('#cliente').on('keydown', function (e) {
+      var suggestions = $('#suggestions-list-cliente li');
+      var currentSelected = $('#suggestions-list-cliente li.selected');
+      console.log('tecla presionada',e.key);
+
+      switch (e.key) {
+          case 'ArrowUp': // Flecha arriba
+              selectedIndex = Math.max(0, selectedIndex - 1);
+              console.log('selectedIndex:', selectedIndex);
+              break;
+          case 'ArrowDown': // Flecha abajo
+              selectedIndex = Math.min(suggestions.length - 1, selectedIndex + 1);
+              break;
+          case 'Enter': // Enter
+              var selectedItem = $('#suggestions-list-cliente .selected');
+              if (currentSelected.length > 0) {
+                  var suggestion = currentSelected.text();
+                  var currentValue = $('#cliente').val();
+                  var cursorPosition = $('#cliente')[0].selectionStart;
+                  var newValue = currentValue.substring(0, cursorPosition) + suggestion + currentValue.substring(cursorPosition);
+                  $('#cliente').val(newValue);
+
+                  //Muestra los campos ruc y contacto al presionar enter
+                  var ruc = selectedItem.data('ruc');
+                  $('#ruc').val(ruc);
+
+                  var contacto = selectedItem.data('contacto');
+                  $('#contacto').val(contacto);
+
+                  var id = selectedItem.data('id');
+                  $('#idcliente').val(id);
+
+                  $('#evento').focus();
+                  
+                  // Borra el carácter actual en el input
+                  $('#cliente').val(function(_, val) {
+                      return val.substr(0, cursorPosition - 4) + val.substr(cursorPosition);
+                  });
+
+                  $('#suggestions-list-cliente').empty(); // Limpiar la lista
+                  selectedIndex = -1; // Reinicia el índice seleccionado
+                 
+              }
+              break;
+              
+          default:
+              return; // Salir si no es una tecla de flecha o Enter
+      }
+
+          // Quitar la clase 'selected' de todos los elementos y agregarla al elemento seleccionado
+          suggestions.removeClass('selected');
+          $(suggestions[selectedIndex]).addClass('selected');
+         
+          // Mover el scroll hacia abajo
+          var container = $('#suggestions-list-cliente');
+          var scrollTo = $(suggestions[selectedIndex]).position().top - container.position().top + container.scrollTop();
+          container.scrollTop(scrollTo);
+      });
+  });
+</script>
+
+<script>
+  $("#frmitemcotizacion").submit(function (e) {
+    e.preventDefault();
+    
+    var formData = new FormData();
+    var resultado = obtenerParametroDeURL();
+    var parametroactualizar = resultado.parametro2;
+    console.log(parametroactualizar)
+
+    var campos = {
+        'parametroactualizar': parametroactualizar,
+        'numcotizacion': $('#numcotizacion').val(),
+        'iddetalle': $('#iddetalle').val(),
+        'id_servicio': $('#id_servicio').val(),
+        'detalle': $('#detalle').val(),
+        'precio': $('#precio').val(),
+        'preciocompra': $('#preciocompra').val(),
+        'cantidad': $('#cantidad').val(),
+        'fechas': $('#fechas').val(),
+        'total': $('#total').val(),
+        'costocompra': $('#costocompra').val(),
+        'action': parametroactualizar == 1 ? 'actualizar_item_cotizacion' : 'registrar_cotizacion',
+        'csrfmiddlewaretoken': '{{ csrf_token }}'
+    };
+
+    $.each(campos, function(nombreCampo, valorCampo) {
+        formData.append(nombreCampo, valorCampo);
+    });
+
+    var url = parametroactualizar == 1 ? '{% url "modificar_item_cotizacion" %}' : '{% url "grabar_item_cotizacion" %}';
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: formData,
+        cache: false,
+        processData: false,
+        contentType: false,
+        success: function (json) {
+            if (json.flag) {
+                Swal.fire(
+                    'Felicitaciones',
+                    json.msg,
+                    'success'
+                ).then(() => {
+                    var numerocotizacion = $('#numcotizacion').val();
+                    var select = localStorage.getItem('selectsereven');
+                    var actualizar = localStorage.getItem('selectactualizar');
+                    if (parametroactualizar==1){
+                  
+                      window.location.href = '/Cotizacion_visualizar/' + 
+                      numerocotizacion + '/' + select + '/' + actualizar;
+                    }
+                    else{
+                  
+                      window.location.href = '/cotizacion_crear/' + 
+                      numerocotizacion + '/' + select + '/' + actualizar;
+
+                    }
+                    
+                });
+            } else {
+                Swal.fire(
+                    'ERROR',
+                    json.msg,
+                    'error'
+                )
+            }
+        },
+        error: function (response) {
+            console.log(response)
+        }      
+    });
+});
+
+</script>
+
+
+<script>
+  $('.btndetalle').on('click', function() {
+    $('#ModalItemCotizacion').modal('show');
+    guardarDatosEnLocalStorage();  
+});
+</script>
+
+
+<script>
+  $('#datatable-cotizacion').on('click', '.btndetallemodal', function() {
+    // Obtener el DataTable
+    var table = $('#datatable-cotizacion').DataTable();
+    // Obtener el índice de la fila actual
+    var rowIndex = table.row($(this).closest('tr')).index();
+    // Por este campo lo actualizaras para la BD 
+    var iddetalle = table.cell({row: rowIndex, column: 10, visible: true}).data();
+    console.log("iddetalle"+iddetalle)
+    
+    var rowData = table.row(rowIndex).data();
+    // Asignar valores a los elementos del modal
+    document.getElementById("item_servicio").value = rowData[1];
+    document.getElementById("detalle").value = rowData[2];
+    document.getElementById("precio").value = rowData[3];
+    document.getElementById("preciocompra").value = rowData[4];
+    document.getElementById("cantidad").value = rowData[5];
+    document.getElementById("fechas").value = rowData[6];
+    document.getElementById("total").value = rowData[7];
+    document.getElementById("costocompra").value = rowData[8];
+    var resultado = obtenerParametroDeURL();
+    var parametroactualizar = resultado.parametro2;
+    if (parametroactualizar == 1) 
+      {
+        document.getElementById("iddetalle").value = iddetalle;
+      }
+       else{
+        document.getElementById("iddetalle").value = rowIndex+1;
+      }
+
+    $('#ModalItemCotizacion').modal('show');
+   });
+</script>
+
+<script>
+    function deleteitemcotizacion(id) {
+      var resultado=obtenerParametroDeURL();
+      parametroactualizar = resultado.parametro2;
+      if (parametroactualizar==0)
+      {
+        Swal
+          .fire({
+              title: "Desea Eliminar el Servicio?",
+              text: "Con codigo "+id,
+              icon: 'error',
+              showCancelButton: true,
+              confirmButtonText: "Sí, eliminar",
+              cancelButtonText: "Cancelar",
+          })
+          .then(resultado => {
+              if (resultado.value) {
+                $.ajax({
+                  url: "{% url 'eliminar_detalle_cotizacion'  %}",
+                  data: {
+                      'id': id,
+                  },
+                  dataType: 'json',
+                  success: function (data) {
+                      if (data.deleted) {
+                        $("#datatable-cotizacion #item-" + id).remove();
+                        }
+                      }
+                    });
+                    var numerocotizacion = localStorage.getItem('numcotizacion');
+                    var actualizar=localStorage.getItem('selectactualizar');
+                    var select = localStorage.getItem('selectsereven');
+                    window.location.href = '/cotizacion_crear/'+numerocotizacion+'/'+select+'/'+actualizar
+            
+              } else {
+                  console.log("*NO se elimina el detalle*");
+                }   
+              })
+          }      
+        }   
+        
+</script>  
+
+<script>
+  // Función para guardar los datos del formulario en el almacenamiento local
+  function guardarDatosEnLocalStorage() {
+    var campos = ["cliente", "numcotizacion", "ruc", "contacto", "evento", "fecha", "capacidad", "lugar", "comentario","idcliente"];
+    campos.forEach(function(campo) {
+      var valor = document.getElementById(campo).value;
+      localStorage.setItem("input" + campo + "Value", valor);
+    });
+  }
+  
+  // Función para llenar los campos del formulario desde el almacenamiento local
+  function llenarCamposDesdeLocalStorage() {
+    var campos = ["cliente", "numcotizacion", "ruc", "contacto", "evento", "fecha", "capacidad", "lugar", "comentario","idcliente"];
+    campos.forEach(function(campo) {
+      var valor = localStorage.getItem("input" + campo + "Value");
+      if (valor !== null) {
+        document.getElementById(campo).value = valor;
+      }
+    });
+  }
+  
+  window.addEventListener("load", function() {
+    var resultado=obtenerParametroDeURL();
+   
+    parametroactualizar = resultado.parametro2;
+    if (parametroactualizar!=1){
+      document.getElementById("modo").textContent = "New";
+      llenarCamposDesdeLocalStorage();
+      var valor = localStorage.getItem("numcotizacion");
+      if (valor !== null) {
+        document.getElementById("numcotizacion").value = valor;
+      }
+    }else{
+      document.getElementById("modo").textContent = "Edit";
+
+    }
+
+  });
+  </script>
+
+  <script>
+    $(document).ready(function() {
+      var csrftoken = getCookie('csrftoken'); // Obtenemos el token CSRF de las cookies
+  
+      $('.btncancelar').on('click', function() {
+          $.ajax({
+              url: '{% url "cancelar_cotizacion" %}',
+              type: 'POST',
+              beforeSend: function(xhr) {
+                  xhr.setRequestHeader('X-CSRFToken', csrftoken); // Establecemos el token CSRF como encabezado
+              },
+              success: function(response) {
+                  console.log('Llamada AJAX exitosa');
+                  console.log(response);
+                  window.location.href = '/listar_cotizaciones/';
+                  
+              },
+              error: function(xhr, status, error) {
+                  console.error('Error en la llamada AJAX:', error);
+              }
+          });
+      });
+  });
+  
+  // Función para obtener el token CSRF de las cookies
+  function getCookie(name) {
+      var cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          var cookies = document.cookie.split(';');
+          for (var i = 0; i < cookies.length; i++) {
+              var cookie = cookies[i].trim();
+              // Si encontramos el token CSRF en las cookies, lo devolvemos
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+  }
+  </script>  
+
+    <script>
+      $('.btngrabar').on('click', function(e) {
+          e.preventDefault();
+          var actualizar = localStorage.getItem('selectactualizar');
+          if (parametroactualizar == 1) {
+              Swal.fire({
+                  title: '¿Desea Actualizar la Cotizacion?',
+                  icon: 'question',
+                  showCancelButton: true,
+                  confirmButtonText: 'Sí, Generar',
+                  cancelButtonText: 'No, continuar sin Actualizar',
+                  reverseButtons: true
+              }).then((result) => {
+                  if (result.isConfirmed) {
+                      actualizartotalesbd();
+                  }
+              });
+          } else {
+              Swal.fire({
+                  title: '¿Desea Generar la Cotizacion?',
+                  icon: 'question',
+                  showCancelButton: true,
+                  confirmButtonText: 'Sí, Generar',
+                  cancelButtonText: 'No, continuar sin grabar',
+                  reverseButtons: true
+              }).then((result) => {
+                  if (result.isConfirmed) {
+                      grabarDatos();
+                  }
+              });
+          }
+      });
+
+  // Función para grabar los datos
+function grabarDatos() {
+  var formData = new FormData();
+  var fecha = $('#fecha').val();
+  var partesFecha = fecha.split('/');
+  var dia = partesFecha[0];
+  var mes = partesFecha[1];
+  var año = partesFecha[2];
+  var fechaFormateada = año + '-' + mes + '-' + dia;
+
+  var campos = {
+      'opciones': localStorage.getItem('selectsereven'),
+      'numcotizacion': $('#numcotizacion').val(),
+      'idcliente': $('#idcliente').val(),
+      'fecha': fechaFormateada,
+      'comentario': $('#comentario').val(),
+      'evento': $('#evento').val(),
+      'capacidad': $('#capacidad').val(),
+      'lugar': $('#lugar').val(),
+      'totalFee': $('#totalFee').text(),
+      'totalSubt': $('#totalSubt').text(),
+      'totalcompra': $('#totalcompra').text(),
+      'action': 'registrar_cotizacion_cabecera',
+      'csrfmiddlewaretoken': '{{ csrf_token }}'
+  };
+
+  $.each(campos, function(nombreCampo, valorCampo) {
+      formData.append(nombreCampo, valorCampo);
+  });
+
+  $.ajax({
+      type: 'POST',
+      url: '{% url "cotizacion_crear" 0 0 0 %}',
+      data: formData,
+      cache: false,
+      processData: false,
+      contentType: false,
+      success: function (json) {
+          if (json.flag) {
+              Swal.fire(
+                  'Felicitaciones',
+                  json.msg,
+                  'success'
+              ).then(() => {
+                  window.location.href = '/listar_cotizaciones/';
+              });
+          } else {
+              Swal.fire(
+                  'Ocurrió un Problema!!',
+                  json.msg,
+                  'error'
+              );
+          }
+      },
+      error: function (response) {
+          console.log(response);
+      }
+  });
+}
+  </script>
+  
+
+  <script>
+    $(document).ready(function() {
+      // Obtener la instancia del DataTable
+      var miTabla = $('#datatable-cotizacion').DataTable();
+
+       // Verificar si la tabla tiene datos
+      if (miTabla.data().count() === 0) {
+        $('#datatable-cotizacion thead').hide();
+        $('#datatable-cotizacion tfoot').hide();
+        $('#btngrabar').hide(); 
+        $('#btncancelar').hide(); 
+      } else {
+        $('#btngrabar').show(); 
+        $('#btncancelar').show(); 
+      }
+      
+      // Obtener los datos de la columna "Costo Total Soles"
+      var dataColumna = miTabla.column(7).data();
+      var datasubtotalcompra = miTabla.column(8).data();
+      
+      // Verificar si los datos son válidos y si hay al menos un elemento en la columna
+      if (dataColumna && datasubtotalcompra && dataColumna.length > 0 && datasubtotalcompra.length > 0) {
+          // Convertir los datos de strings a números y calcular el subtotal
+          var subtotal = 0;
+          var subtotalcompra=0;
+          for (var i = 0; i < dataColumna.length; i++) {
+              // Verificar si el valor es un string numérico antes de sumarlo
+              var valorNumerico = parseFloat(dataColumna[i].replace(/[$,]/g, '').replace(',', '.'));
+              var valorSubtotalcompra = parseFloat(datasubtotalcompra[i].replace(/[$,]/g, '').replace(',', '.'));
+              if (!isNaN(valorNumerico)) {
+                  subtotal += valorNumerico;
+              }
+              if (!isNaN(valorSubtotalcompra)) {
+                subtotalcompra += valorSubtotalcompra;
+            }
+          }
+          subtotal = subtotal.toFixed(2);
+          subtotalcompra = subtotalcompra.toFixed(2);
+
+    
+          // Calcular el fee (12% del subtotal)
+          var fee = (subtotal * 0.12).toFixed(2);
+          
+          // Calcular el total
+          var total = (parseFloat(subtotal) + parseFloat(fee)).toFixed(2);
+          
+          // Calcular el IGV (18% del total)
+          var igv = (total * 0.18).toFixed(2);
+          
+          // Calcular el gran total (total + igv)
+          var grantot = (parseFloat(total) + parseFloat(igv)).toFixed(2);
+
+          // Calcular la ganancia
+          var ganancia = (parseFloat(subtotal) - parseFloat(subtotalcompra)).toFixed(2);
+         
+          
+          // Mostrar los resultados en los elementos correspondientes
+          $('#totalSubt').text(subtotal);
+          $('#totalFee').text(fee);
+          $('#totalTotal').text(total);
+          $('#totalIgv').text(igv);
+          $('#totalGran').text(grantot);
+          $('#totalcompra').text(subtotalcompra);
+          $('#ganancia').text(ganancia);
+      } else {
+          // Manejar el caso donde no hay datos disponibles
+          console.log("No hay datos disponibles para calcular el total.");
+      }
+   
+  });
+  
+  </script>  
+
+  <script>
+    function deleteitemcotizacionbd(id) {
+      var resultado=obtenerParametroDeURL();
+      parametroactualizar = resultado.parametro2;
+      if (parametroactualizar==1)
+      {
+        Swal
+          .fire({
+              title: "Desea Eliminar el Servicio?",
+              text: "Con codigo "+id,
+              icon: 'error',
+              showCancelButton: true,
+              confirmButtonText: "Sí, eliminar",
+              cancelButtonText: "Cancelar",
+          })
+          .then(resultado => {
+              if (resultado.value) {
+                $.ajax({
+                  url: "{% url 'eliminar_detalle_cotizacion_bd'  %}",
+                  data: {
+                      'id': id
+                  },
+                  dataType: 'json',
+                  success: function (data) {
+                      if (data.deleted) {
+                        $("#datatable-cotizacion #item-" + id).remove();
+                        }
+                        
+                      }
+                    });
+                    
+                    var numerocotizacion = $('#numcotizacion').val();
+                    var actualizar=localStorage.getItem('selectactualizar');
+                    var select = localStorage.getItem('selectsereven');
+                    window.location.href = '/Cotizacion_visualizar/'+numerocotizacion+'/'+select+'/'+actualizar
+                    
+              } else {
+                  console.log("*NO se elimina el detalle*");
+                }   
+              })
+          }      
+        }   
+        
+</script>  
+
+<script>
+function actualizartotalesbd() {
+  var formData = new FormData();
+  var fecha = $('#fecha').val();
+  var partesFecha = fecha.split('/');
+  var dia = partesFecha[0];
+  var mes = partesFecha[1];
+  var año = partesFecha[2];
+  var fechaFormateada = año + '-' + mes + '-' + dia;
+  var campos = {
+
+    'numcotizacion': $('#numcotizacion').val(),
+    'totalFee': $('#totalFee').text(),
+    'totalSubt': $('#totalSubt').text(),
+    'totalcompra': $('#totalcompra').text(),  
+    'idcliente': $('#idcliente').val(),
+    'fecha': fechaFormateada,
+    'comentario': $('#comentario').val(),
+    'evento': $('#evento').val(),
+    'capacidad': $('#capacidad').val(),
+    'lugar': $('#lugar').val(),
+    'estadocotizacion':$('#estadocotizacion').val(),
+    'action': 'actualizar_totales',
+    
+    'csrfmiddlewaretoken': '{{ csrf_token }}'
+};
+
+$.each(campos, function(nombreCampo, valorCampo) {
+  formData.append(nombreCampo, valorCampo);
+});
+
+  $.ajax({
+      url: '{% url "actualizar_totales_bd" %}', 
+      type: 'POST',
+      data: formData,
+      cache: false,
+      processData: false,
+      contentType: false,
+      success: function (json) {
+        if (json.flag) {
+            Swal.fire(
+                'Felicitaciones',
+                json.msg,
+                'success'
+            ).then(() => {
+                window.location.href = '/listar_cotizaciones/';
+            });
+        } else {
+            Swal.fire(
+                'Ocurrió un Problema!!',
+                json.msg,
+                'error'
+            );
+        }
+    },
+    error: function (response) {
+        console.log(response);
+    }
+});
+}
+</script>
+
+
+
+
+
+{% endblock javascripts %}
+{% endblock  %}
+
+
+

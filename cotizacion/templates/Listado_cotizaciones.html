@@ -1,0 +1,296 @@
+{% extends 'layouts/base.html' %}
+{% block title %}Listado de Cotizaciones{% endblock %}
+
+
+{% block content %}
+{% comment %}  {% endcomment %}
+  <!-- Main Content -->
+  <div class="adminx-content">
+    <div class="adminx-main-content">
+      <div class="container-fluid">
+
+        
+        <!-- BreadCrumb -->
+        <nav aria-label="breadcrumb" role="navigation">
+          <ol class="breadcrumb adminx-page-breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'index_home' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="#">Cotizaciones</a></li>
+          </ol>
+        </nav>
+        
+        <div class="text-right">
+          <div class="dropdown">
+            <button class="btn btn-lg btn-info mr-2 dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="btn-text">Agregar</span>
+            </button>
+            
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" href="#" id="evento-link">Evento</a>
+              <a class="dropdown-item" href="#" id="servicio-link">Servicio</a>
+          </div>
+          </div>
+        </div>
+
+        <div class="pb-3">          
+          <h1>Cotizaciones</h1>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="card mb-grid">
+              <div class="table-responsive-md">
+                <table class="table table-actions table-striped table-hover mb-0" id=datatable-cotizaciones data-table>
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Tipo</th>
+                      <th scope="col">Cliente</th>
+                      <th scope="col">Fecha</th>
+                      <th scope="col">Estado</th>
+                      <th scope="col">Usuario</th>
+                      <th class="center">Opciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for item in cotizaciones %}  
+                    <tr id="item-{{item.id}}" class=>
+                      <td> {{ item.nrocotizacion }} </td>
+                      <td>{{item.tipo_cotizacion}}</td>
+                      <td>{{item.cliente}}</td>
+                      <td>{{item.fecha_cotizacion|date:"d/m/Y" }}</td>
+                      <td>{{item.estado}}</td>
+                      <td>{{item.persona_creo_cotiza}}</td>
+                      <td>
+                        <a href="{% url 'cotizacion_visualizar' item.nrocotizacion item.tipo_cotizacion.pk '1' %}" class="btn btn-icon btn-sm mr-2">
+                          <i data-feather="eye"></i>
+                        </a>
+                        
+                        <button class="btn btn-icon btn-sm mr-2" onClick="deletecotizacionbd({{ item.nrocotizacion }})">
+                          <i data-feather="trash-2"></i>
+                        </button>
+                        
+                      </td>
+                    </tr>
+                  {% endfor %}   
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  {% block javascripts %}
+
+<script>
+  $(document).ready(function() {
+    var table = $('[data-table]').DataTable({
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        bLengthChange: true,
+        "iDisplayLength": 10,
+        bInfo: false,
+        responsive: true,
+        "bAutoWidth": false,
+        "columns": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            { "orderable": false },
+        ],
+        "createdRow": function(row, data, dataIndex) {
+          // Cambiar el texto por badges de Bootstrap según el estado
+          var estado = data[4];
+          var badgeClass;
+          switch (estado) {
+              case 'CREADA':
+                  badgeClass = 'badge-warning';
+                  break;
+              case 'APROBADA':
+                  badgeClass = 'badge-success';
+                  break;
+              case 'NO APROBADA':
+                  badgeClass = 'badge-danger';
+                  break;
+              case 'PAGADA':
+                  badgeClass = 'badge-primary';
+                  break;
+              case 'FACTURADA':
+                  badgeClass = 'badge-info';
+                  break;
+              default:
+                  badgeClass = 'badge-secondary';
+          }
+          $(row).find('td:eq(4)').html('<span class="badge ' + badgeClass + '">' + estado + '</span>');
+      }
+  });
+});
+
+
+function deleteProductos(id) {
+      Swal
+        .fire({
+            title: "Desea Eliminar el Producto?",
+            text: "Con codigo "+id,
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar",
+        })
+        .then(resultado => {
+            if (resultado.value) {
+              $.ajax({
+                url: "{% url 'productos_eliminar'  %}",
+                data: {
+                    'id': id,
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.deleted) {
+                      $("#datatable-cotizaciones #item-" + id).remove();
+                     }
+                    }
+                  });
+            
+            } else {
+                console.log("*NO se elimina el Producto*");
+            }   
+            })
+        }
+</script> 
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      var boton = document.getElementById("btnAgregar");
+      var opciones = document.getElementById("btnopciones");
+      boton.addEventListener("click", function() {
+          opciones.style.display = opciones.style.display === "none" ? "block" : "none";
+      });
+      
+  });
+
+  function eliminarVariablesLocalStorage() {
+    var variablesAEliminar = ["inputclienteValue", "inputnumcotizacionValue", "inputrucValue", "inputcontactoValue", "inputeventoValue", "inputfechaValue", "inputcapacidadValue", "inputlugarValue", "inputcomentarioValue","inputidclienteValue"];
+
+    variablesAEliminar.forEach(function(variable) {
+        localStorage.removeItem(variable);
+    });
+}
+</script>
+
+<script>
+  $(document).ready(function() {
+    // Inicializa el DataTable
+    var tabla = $('#datatable-cotizaciones').DataTable();
+    // Obtiene los datos de la columna de cotización
+    //var numerosCotizacion = tabla.column(0).data().toArray();
+    // Encuentra el número de cotización más alto
+    var numeroMasAlto = 0;
+    //for (var i = 0; i < numerosCotizacion.length; i++) {
+    //    var numero = parseInt(numerosCotizacion[i]);
+    //    if (!isNaN(numero) && numero > numeroMasAlto) {
+    //        numeroMasAlto = numero;
+    //    }
+    //}
+    var numeroMasAlto = obtenerUltimaCotizacion();
+    // Incrementa el número de cotización más alto en uno
+    var siguienteNumero = parseInt(numeroMasAlto) + 1;
+    // Formatea el siguiente número con los ceros iniciales
+    var siguienteNumeroFormateado = "10000000".slice(0, -siguienteNumero.toString().length) + siguienteNumero;
+
+    // Guarda el siguiente número de cotización en el almacenamiento local
+    localStorage.setItem("numcotizacion", siguienteNumeroFormateado);
+    eliminarVariablesLocalStorage();
+    var numerocotizacion = siguienteNumeroFormateado;
+  
+    // Construye la URL con la variable numerocotizacion como parámetro
+    var eventoURL = "{% url 'cotizacion_crear' 3 1 0 %}".replace("3", numerocotizacion);
+    var servicioURL = "{% url 'cotizacion_crear' 3 2 0 %}".replace("3", numerocotizacion);
+
+  // Actualiza los enlaces con las URLs construidas
+  document.getElementById("evento-link").setAttribute("href", eventoURL);
+  document.getElementById("servicio-link").setAttribute("href", servicioURL);
+
+});
+    
+</script>
+
+<script>
+  function deletecotizacionbd(id) {
+      Swal
+        .fire({
+            title: "Desea Eliminar la Cotizacion?",
+            text: "Con codigo "+id,
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar",
+        })
+        .then(resultado => {
+            if (resultado.value) {
+              $.ajax({
+                url: "{% url 'eliminar_cotizacion_bd'  %}",
+                data: {
+                    'id': id
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.deleted) {
+                      $("#datatable-cotizaciones #item-" + id).remove();
+                      }
+                      
+                    }
+                  });
+                  window.location.href = '/listar_cotizaciones/';
+                  
+            } else {
+                console.log("*NO se elimina la cotizacion*");
+              }   
+            })
+        }      
+      
+</script>  
+
+<script>
+function obtenerUltimaCotizacion() {
+  var resultado;
+  $.ajax({
+    url: "{% url 'obtener_la_ultima_cotizacion' %}",
+    async: false, // Esto hace que la solicitud sea síncrona
+    success: function(data) {
+      resultado = data.max_valor; // Guarda el valor de la última cotización
+    },
+    error: function() {
+      console.error('Error al obtener la última cotización.');
+    }
+  });
+  return resultado; // Devuelve el valor obtenido
+}
+</script>  
+
+{% endblock javascripts %}
+
+{% endblock  %}
