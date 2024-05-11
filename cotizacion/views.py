@@ -484,7 +484,7 @@ class AutocompleteClientes(View):
 @login_required
 def Listar_cotizaciones(request):
     template_name="./layouts/Listado_cotizaciones.html"
-    cotizaciones=Cotizacion.objects.filter(state=True)
+    cotizaciones=Cotizacion.objects.filter(state=True)#orm QUERYSET
     cotizaciones_ordenadas = cotizaciones.order_by('fecha_cotizacion')
     context = {
         "cotizaciones": cotizaciones_ordenadas,

@@ -75,19 +75,19 @@ WSGI_APPLICATION = 'app_cotizaciones.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'local': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'bdcotizaciones',
-        'USER':'admin',
-        'PASSWORD':'admin',
-        'HOST':'localhost',
-        'PORT':'5432'
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'bdcotizaciones',
+#         'USER':'admin',
+#         'PASSWORD':'admin',
+#         'HOST':'localhost',
+#         'PORT':'5432'
+#     }
+# }
 
 DATABASES = {
-    'default': {
+    'local': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'bdcotizaciones',
         'USER':'bdcotizaciones_user',
@@ -143,11 +143,19 @@ DECIMAL_SEPARATOR = '.'
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 
+STATIC_URL = 'static/'
+
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "static"),
-    )
+
+#cuando estes en produccion coloc debug=false
+if DEBUG:
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'media')
+    ]
+else:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+
 
 
 
