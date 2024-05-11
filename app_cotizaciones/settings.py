@@ -87,7 +87,7 @@ WSGI_APPLICATION = 'app_cotizaciones.wsgi.application'
 # }
 
 DATABASES = {
-    'local': {
+    'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'bdcotizaciones',
         'USER':'bdcotizaciones_user',
