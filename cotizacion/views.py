@@ -895,11 +895,29 @@ def Actualizar_totales_bd(request):
         response_data = {'flag': False, 'msg': 'Solicitud no válida'}
     return JsonResponse(response_data)
 
-@login_required
+# @login_required
+# def obtener_la_ultima_cotizacion(request):
+#     try:
+#         # Utiliza aggregate para obtener el valor máximo del campo Char
+#         valor_mas_alto = Cotizacion.objects.aggregate(max_valor=Max('nrocotizacion'))
+#         max_valor = valor_mas_alto['max_valor']
+#         print(f"el maximo valor {max_valor}")
+#         #10000NaN
+#     except Cotizacion.DoesNotExist:
+#         max_valor = '10000001'    
+#     return JsonResponse({'max_valor': max_valor})
+
 def obtener_la_ultima_cotizacion(request):
-    # Utiliza aggregate para obtener el valor máximo del campo Char
-    valor_mas_alto = Cotizacion.objects.aggregate(max_valor=Max('nrocotizacion'))
-    max_valor = valor_mas_alto['max_valor']
+    try:
+        # Obtenemos el último objeto Cotizacion ordenado por 'nrocotizacion' de manera descendente
+        ultima_cotizacion = Cotizacion.objects.order_by('-nrocotizacion').first()
+        if ultima_cotizacion:
+            max_valor = ultima_cotizacion.nrocotizacion
+        else:
+            max_valor = '10000000'
+    except Cotizacion.DoesNotExist:
+        max_valor = '10000000'
+
     return JsonResponse({'max_valor': max_valor})
 
 
