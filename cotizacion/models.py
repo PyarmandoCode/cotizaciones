@@ -199,7 +199,7 @@ class OrdenCompra(models.Model):
         return self.cotizacion
 
 
-
+#este cambio es para los modelos
 
 
 
