@@ -84,6 +84,7 @@ def index(request):
 #region Productos
 @login_required
 def Productos_listado(request):
+    #SELECT * FROM PRODUCTOS WHERE STATE=TRUE
     productos = Producto.objects.filter(state=True)
     context = {
         "productos": productos,
