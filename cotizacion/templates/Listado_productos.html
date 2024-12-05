@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Listado de Productos{% endblock %}
-
-
 {% block content %}
+{% load custom_filters %}
 {% comment %}  {% endcomment %}
   <!-- Main Content -->
   <div class="adminx-content">
@@ -47,10 +46,12 @@
                       <th scope="col">Costo Real</th>
                       <th scope="col">Costo Ofrecido</th>
                       <th scope="col">Ganancia</th>
+                      <th scope="col">Stock</th>
                       <th class="center">Opciones</th>
                     </tr>
                   </thead>
                   <tbody>
+           
                   {% for item in productos %}  
                     <tr id="item-{{item.id}}">
                       <td> {{ item.id }} </td>
@@ -58,9 +59,10 @@
                       <td>{{item.umedida}}</td>
                       <td>{{item.categoria}}</td>
                       <td>{{item.proveedor}}</td>
-                      <td>{{item.costo_real}}</td>
-                      <td>{{item.costo_ofrecido}}</td>
-                      <td>{{item.ganancia}}</td>
+                      <td>{{item.costo_real |floatformat:"2"|replace_comma}}</td>
+                      <td>{{item.costo_ofrecido |floatformat:"2"|replace_comma}}</td>
+                      <td>{{item.ganancia |floatformat:"2"|replace_comma}}</td>
+                      <td>{{item.stock}}</td>
                       <td>
                         <a href="{% url 'productos_visualizar' item.id %}" class="btn btn-icon btn-sm mr-2">
                           <i data-feather="eye"></i>
@@ -90,7 +92,7 @@
   $(document).ready(function() {
     var table = $('[data-table]').DataTable({
     language: {
-                "decimal": "",
+                "decimal": ".",
                 "emptyTable": "No hay información",
                 "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
                 "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
@@ -115,6 +117,7 @@
               responsive: true,
               "bAutoWidth": false,
               "columns": [
+                null,
                 null,
                 null,
                 null,

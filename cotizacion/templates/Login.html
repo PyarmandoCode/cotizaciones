@@ -6,6 +6,129 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <link rel="stylesheet" type="text/css" href="/static/cotizacion/css/adminx.css" media="screen" />
+    <style>
+      /* Estilos generales */
+      body {
+        background-color: #f0f8ff; /* Celeste claro */
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+
+      /* Estilo para el contenedor de la página */
+      .adminx-container {
+        width: 100%;
+        max-width: 400px;
+        background-color: #ffffff;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      /* Efecto al pasar el mouse */
+      .adminx-container:hover {
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+      }
+
+      /* Logo centrado */
+      .navbar-brand {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+        text-align: center;
+        flex-wrap: wrap; /* Permite que el texto y el logo se ajusten mejor */
+      }
+
+      .navbar-brand img {
+        width: 40px; /* Tamaño ajustado para el logo */
+        margin-right: 10px;
+      }
+
+      .navbar-brand h1 {
+        font-size: 18px; /* Ajustar el tamaño del texto */
+        line-height: 1.2;
+      }
+
+      /* Estilos para la tarjeta */
+      .card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .card-body {
+        padding: 30px;
+      }
+
+      .card-footer {
+        background-color: #f9f9f9;
+        border-top: 1px solid #f0f0f0;
+        padding: 10px;
+      }
+
+      /* Inputs y campos de selección */
+      input[type="text"], input[type="password"], select.form-control {
+        width: 100%;
+        padding: 12px;
+        margin: 8px 0;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        font-size: 16px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+      }
+
+      input[type="text"]:focus, input[type="password"]:focus, select.form-control:focus {
+        border-color: #66afe9;
+        box-shadow: 0 0 8px rgba(102, 175, 233, 0.6);
+        outline: none;
+      }
+
+      /* Botón de submit */
+      button[type="submit"] {
+        width: 100%;
+        padding: 12px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      button[type="submit"]:hover {
+        background-color: #45a049;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      }
+
+      /* Enlace de "Olvidaste tu password" */
+      .card-footer a {
+        color: #007bff;
+        text-decoration: none;
+      }
+
+      .card-footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* Estilos para los checkbox */
+      .custom-control-input:checked ~ .custom-control-label::before {
+        background-color: #4CAF50;
+        border-color: #4CAF50;
+      }
+
+      .custom-control-label {
+        font-size: 14px;
+      }
+    </style>
   </head>
   <body>
     <div class="adminx-container d-flex justify-content-center align-items-center">
@@ -13,17 +136,15 @@
         <div class="text-center">
           <a class="navbar-brand mb-4 h1" href="login.html">
             <img src="https://res.cloudinary.com/dream-music/image/upload/v1732998691/DNS/dnslogo_vcshxv.png" class="navbar-brand-image d-inline-block align-top mr-2" alt="">
-            DNS SOLUCIONES INFORMATICAS EIRL
+            <h1>DNS SOLUCIONES INFORMATICAS EIRL</h1>
           </a>
         </div>
 
         <div class="card mb-0">
-    
-       
           <div class="card-body">
             <form class="login-form" id="formlogin" method="POST">{% csrf_token %}
               <div class="form-group">
-                <label for="user" class="form-label">Usuario</label>
+                <label for="usuario" class="form-label">Usuario</label>
                 <input type="text" class="form-control" id="usuario" placeholder="Usuario">
               </div>
               <div class="form-group">
@@ -40,19 +161,18 @@
               <div class="form-group">
                 <label class="form-label" for="cmbempresa">Empresa</label>
                 <select class="form-control" id="cmbempresa">
-                  <option  value="" selected="selected">---SELECCIONE---</option>
-                    {% for item in empresas %}
-                        <option value="{{item.id}}">{{item.nombre}}</option>
-                    {% endfor %}
+                  <option value="" selected="selected">---SELECCIONE---</option>
+                  {% for item in empresas %}
+                    <option value="{{item.id}}">{{item.nombre}}</option>
+                  {% endfor %}
                 </select>
-            </div>
-
+              </div>
 
               <button type="submit" class="btn btn-sm btn-block btn-primary">Ingresar</button>
             </form>
           </div>
           <div class="card-footer text-center">
-            <a href="#"><small>Olvidates tu password?</small></a>
+            <a href="#"><small>Olvidaste tu password?</small></a>
           </div>
         </div>
       </div>
@@ -60,7 +180,7 @@
 
     <script src="/static/cotizacion/js/jquery-3.2.1.min.js"></script>
     <script src="/static/cotizacion/js/popper.min.js"></script>
-    <script src="/static/cotizacion/js/bootstrap.min.js"></script> 
+    <script src="/static/cotizacion/js/bootstrap.min.js"></script>
     <script src="/static/cotizacion/js/vendor.js"></script>
     <script src="/static/cotizacion/js/adminx.js"></script>
 
@@ -70,12 +190,11 @@
             $('.login-box').toggleClass('flipped');
             return false;
         });
-      </script>
-  
-   
-      <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  
-      <script>
+    </script>
+
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
         $("#formlogin").submit(function (e) {
             e.preventDefault();
             $.ajax({
@@ -84,7 +203,7 @@
                 data: {
                     usuario: $('#usuario').val(),
                     clave: $('#clave').val(),
-                    empresa:$('#cmbempresa').val(),
+                    empresa: $('#cmbempresa').val(),
                     csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
                     action: 'post'
                 },
@@ -94,10 +213,9 @@
                             json.completo,
                             json.msg,
                             'success',
-                             ).then(function() {
-                             window.location.href = json.url
-                            }
-                        )
+                        ).then(function() {
+                            window.location.href = json.url
+                        })
                     } else {
                         Swal.fire(
                             'ERROR',

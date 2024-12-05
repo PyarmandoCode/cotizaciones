@@ -2,6 +2,15 @@
 {% block title %}Pagina Principal{% endblock %}
 {% block content %}
 {% load custom_filters %}
+
+<style>
+  /* Oculta la columna con el encabezado 'Fechas' */
+  th:nth-child(7), /* Aquí '2' es el índice de la columna */
+  td:nth-child(7) {
+      display: none;
+  }
+</style>
+
 <div class="adminx-content">
   <div class="adminx-main-content">
     <div class="container-fluid">
@@ -61,8 +70,8 @@
               <div class="form-row">
 
                 <div class="col-md-3 mb-3" id="cntevento" class="oculto">
-                  <label class="form-label" for="evento"  id="lblevento" class="oculto" >Evento</label>
-                  <input type="text" class="form-control" id="evento" class="oculto" onkeydown="focusFlatpickr(event, 'fecha','capacidad')" placeholder="Evento" data-input data-format="d/m/Y" value="{{cabecera.nombre_evento}}">
+                  <label class="form-label" for="evento"  id="lblevento" class="oculto" >Venta</label>
+                  <input type="text" class="form-control" id="evento" class="oculto" onkeydown="focusFlatpickr(event, 'fecha','capacidad')" placeholder="Venta" data-input data-format="d/m/Y" value="{{cabecera.nombre_evento}}">
                 </div>
 
                 <div class="col-md-3 mb-3" id="cntfecha" class="oculto">
@@ -112,7 +121,7 @@
                       <th scope="col">Precio Compra</th>
                       <th scope="col">Precio Venta</th>
                       <th scope="col">Ctd</th>
-                      <th scope="col">Fechas</th>
+                      <th scope="col">Fechas</th>  
                       <th scope="col">Costo Venta Soles</th>
                       <th scope="col">Costo Compra Soles</th>
                       <th scope="col"></th>
@@ -131,7 +140,7 @@
                       <td>{{item.preciocompra|floatformat:"2"|replace_comma}}</td>
                       <td>{{item.precio|floatformat:"2"|replace_comma}}</td>
                       <td>{{item.cantidad}}</td>
-                      <td>{{item.fechas}}</td>
+                      <td>{{item.fechas}} </td>  
                       <td>{{item.costo|floatformat:"2"|replace_comma }}</td>
                       <td>{{item.costocompra|floatformat:"2"|replace_comma }}</td>
                       <td class="btn-container-delete">
@@ -269,15 +278,15 @@
                 <input type="number" class="form-control" id="cantidad" required="required" oninput="hallar_total()">
 
           
-                <label for="fechas" class="col-form-label">Fechas:</label>
-                <input type="number" class="form-control" id="fechas" required="required" oninput="hallar_total()">
+              <label for="fechas" hidden class="col-form-label">Fechas:</label>
+                <input type="number" class="form-control" id="fechas"  hidden > 
 
                 <label for="total" class="col-form-label">Costo Total Venta Soles:</label>
                 <input type="number" class="form-control" id="total" required="required" step="any">
 
                 <label for="costocompra" class="col-form-label">Costo Total Compra Soles:</label>
                 <input type="number" class="form-control" id="costocompra" required="required" step="any">
-                <input type="text" class="form-control" id="iddetalle" >
+                <input type="text" class="form-control" id="iddetalle"  >
               </div>
         
         <div class="modal-footer">
@@ -331,8 +340,10 @@ $(document).ready(function() {
               null,
               null,
               null,
+              
              
               { "visible": false },
+              
               null,
             ]
         });
@@ -365,9 +376,12 @@ $(document).ready(function() {
                         }
 
                         listItem.data('id', item.id);
+                        listItem.data('precio', item.precio);
                     
                         listItem.click(function() {
-                          $('#id_servicio').val(item.id);// Mostrar el campo 'contacto' asociado al valor seleccionado con clik                         
+                          $('#id_servicio').val(item.id);
+                          $('#preciocompra').val(item.precio);
+
                       });
                         $('#suggestions-list').append(listItem);
                     });
@@ -529,7 +543,7 @@ function mostrarOcultarInputs() {
 
   
   // Configurar el texto de #titulo según el valor de select
-  var titulo = select === "1" ? "Evento" : "Servicio";
+  var titulo = select === "1" ? "Venta" : "Servicio";
   document.getElementById("titulo").textContent = titulo;
 
   // Enfocar en el elemento #cliente
@@ -548,15 +562,15 @@ $(document).ready(function() {
     var precio = parseFloat(document.getElementById("precio").value);
     var preciocompra = parseFloat(document.getElementById("preciocompra").value);
     var cantidad = parseFloat(document.getElementById("cantidad").value);
-    var fechas = parseFloat(document.getElementById("fechas").value);
+    //var fechas = parseFloat(document.getElementById("fechas").value);
     var total = document.getElementById("total");
     var costocompra = document.getElementById("costocompra");
   
   
     // Verificar si todos los campos tienen valores numéricos
-    if (!isNaN(precio) && !isNaN(cantidad) && !isNaN(fechas)) {
-        var total_var = precio * cantidad * fechas; // Multiplicar precio, cantidad y fechas
-        var total_inte = preciocompra * cantidad * fechas; // Multiplicar precio, cantidad y fechas
+    if (!isNaN(precio) && !isNaN(cantidad)) {
+        var total_var = precio * cantidad ; // Multiplicar precio, cantidad y fechas
+        var total_inte = preciocompra * cantidad ; // Multiplicar precio, cantidad y fechas
         total.value = total_var.toFixed(2); // Mostrar el total con dos decimales
         costocompra.value = total_inte.toFixed(2); // Mostrar el total con dos decimales
     } else {
@@ -745,7 +759,6 @@ $(document).ready(function() {
         'precio': $('#precio').val(),
         'preciocompra': $('#preciocompra').val(),
         'cantidad': $('#cantidad').val(),
-        'fechas': $('#fechas').val(),
         'total': $('#total').val(),
         'costocompra': $('#costocompra').val(),
         'action': parametroactualizar == 1 ? 'actualizar_item_cotizacion' : 'registrar_cotizacion',

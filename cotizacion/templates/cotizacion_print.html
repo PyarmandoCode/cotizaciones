@@ -1,158 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Cotizacion</title>
+    <title>Factura</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-   
-  </head>
-  <style>
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      border: 1px solid black;
-      padding: 2px;
-      text-align: left;
-    }
-
-    th {
-        background-color: #17a2b8;
-        color: white; /* Cambiar el color del texto a blanco para que se destaque en el fondo naranja */
-    }
-
-    .input-container {
+    <style>
+      body {
+        font-family: Arial, sans-serif;
         margin: 10px;
-    }
+        font-size: 12px;
+      }
 
-   
-  </style>  
- 
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
 
+      .company-info {
+        text-align: left;
+        font-size: 10px;
+      }
+
+      .company-info h1 {
+        margin: 0;
+        font-size: 16px;
+        color: #17a2b8;
+      }
+
+      .company-info p {
+        margin: 2px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 10px;
+      }
+
+      th, td {
+        border: 1px solid black;
+        padding: 4px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #17a2b8;
+        color: white;
+        font-size: 10px;
+      }
+
+      td {
+        font-size: 10px;
+      }
+
+      .totals {
+        width: 50%;
+        float: right;
+        margin-top: 10px;
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+
+      .totals th, .totals td {
+        padding: 4px;
+        text-align: right;
+      }
+
+      .totals th {
+        background-color: #f8f9fa;
+        font-size: 10px;
+      }
+
+      .footer {
+        text-align: center;
+        margin-top: 10px;
+        font-size: 10px;
+        color: #555;
+      }
+
+      .social-icons img {
+        width: 15px;
+        margin: 0 3px;
+        vertical-align: middle;
+      }
+    </style>
+  </head>
   <body>
-    <div style="text-align: right;" >
-       <img src={{logopath}} alt="Descripción de la imagen" width="150">      
+    <!-- Encabezado -->
+    <div class="header">
+      <div class="company-info">
+        <h1>DNS Soluciones Informaticas E.I.R.L</h1>
+        <p>Dirección: Andrés Avelino Cáceres Mz. N Lte 9 Cerro Colorado Arequipa.</p>
+        <p>Teléfono: 990 999989</p>
+        <p>Email: denis.velasquez@dnssolucionesinformaticas.com</p>
+      </div>
+      <div style="text-align: right;">
+        <img src="{{logopath}}" alt="Logo Empresa" width="100">
+      </div>
     </div>
 
+    <!-- Información de la cotización -->
     <form>
-        <table>
-            <tr>
-                <td colspan="4">
-                    <div class="input-container">
-                        <p><b>Cotizacion</b> {{cabecera}}</p>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <div class="input-container">
-                        <p><b>Cliente</b> {{cabecera.cliente}}</p>
-                    </div>
-                </td>
-                <td>
-                    <div class="input-container">
-                        <p><b>Ruc</b> {{cabecera.cliente.ruc}}</p>
-                    </div>
-                </td>
-                <td>
-                    <div class="input-container">
-                        <p><b>Contacto</b> {{cabecera.cliente.contacto}}</p>
-                    </div>
-                </td>
-                <td>
-                    <div class="input-container">
-                        <p></p>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td >
-                    <div class="input-container">
-                        <p><b>Evento</b> {{cabecera.nombre_evento}}</p>
-                    </div>
-                </td>
-                <td >
-                    <div class="input-container">
-                        <p><b>Fecha</b> {{ cabecera.fecha_cotizacion|date:'d/m/Y' }}</p>
-                    </div>
-                </td>
-                <td >
-                    <div class="input-container">
-                        <p><b>Capacidad</b>  {{cabecera.capacidad}}</p>
-                    </div>
-                </td>
-                <td >
-                    <div class="input-container">
-                        <p><b>Lugar</b> {{cabecera.lugar}}</p>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="4">
-                    <div class="input-container">
-                        <p><b>Comentario</b> {{cabecera.comentario}}</p>
-                    </div>
-                </td>
-            </tr>
-        </table>
+      <table>
+        <tr>
+          <td colspan="3">
+            <strong>Cotización:</strong> {{cabecera}}
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Cliente:</strong> {{cabecera.cliente}}</td>
+          <td><strong>RUC:</strong> {{cabecera.cliente.ruc}}</td>
+          <td><strong>Contacto:</strong> {{cabecera.cliente.contacto}}</td>
+        </tr>
+        <tr>
+          <td><strong>Evento:</strong> {{cabecera.nombre_evento}}</td>
+          <td><strong>Fecha:</strong> {{ cabecera.fecha_cotizacion|date:'d/m/Y' }}</td>
+          <td><strong>Capacidad:</strong> {{cabecera.capacidad}}</td>
+        </tr>
+        <tr>
+          <td colspan="3"><strong>Comentario:</strong> {{cabecera.comentario}}</td>
+        </tr>
+        <tr>
+          <td colspan="3"><strong>Lugar:</strong> {{cabecera.lugar}}</td>
+        </tr>
+      </table>
     </form>
 
-              <table>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Servicios</th>
-                    <th>Detalle</th>
-                    <th>Precio</th>
-                    <th>Ctd</th>
-                    <th>Fechas</th>
-                    <th>Subtotal</th>
-                  </tr>
-                </thead>
-                <tbody>
+    <!-- Detalle de servicios -->
+    <div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 5%;">#</th>
+            <th style="width: 20%;">Servicios</th>
+            <th style="width: 25%;">Detalle</th>
+            <th style="width: 10%;">Precio</th>
+            <th style="width: 10%;">Cant.</th>
+            <th style="width: 10%;">Fechas</th>
+            <th style="width: 10%;">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in detalle %}
+          <tr id="item-{{forloop.counter}}">
+            <td>{{ forloop.counter }}</td>
+            <td>{{item.servicio}}</td>
+            <td>{{item.detalle}}</td>
+            <td>{{item.precio|floatformat:"2"}}</td>
+            <td>{{item.cantidad}}</td>
+            <td>{{item.fechas}}</td>
+            <td>{{item.costo|floatformat:"2"}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
 
-                  {% for item in detalle %}  
-                  <tr id="item-{{forloop.counter}}">
-                    <td> {{ forloop.counter }} </td> 
-                    <td>{{item.servicio}}</td>
-                    <td>{{item.detalle}}</td>
-                    <td>{{item.precio|floatformat:"2"}}</td>
-                    <td>{{item.cantidad}}</td>
-                    <td>{{item.fechas}}</td>
-                    <td>{{item.costo|floatformat:"2"}}</td>
-                  </tr>
-                {% endfor %}   
-                </tbody>
-            </table>
+    <!-- Totales -->
+    <table class="totals">
+      <tr>
+        <th>Descripción</th>
+        <th>Costo S/.</th>
+      </tr>
+      <tr>
+        <td>Sub-Total</td>
+        <td>{{cabecera.total}}</td>
+      </tr>
+      <tr>
+        <td>Fee (12%)</td>
+        <td>{{cabecera.fee}}</td>
+      </tr>
+      <tr>
+        <td>Total</td>
+        <td>{{total}}</td>
+      </tr>
+      <tr>
+        <td>IGV</td>
+        <td>{{igv}}</td>
+      </tr>
+      <tr>
+        <td>Gran Total Venta</td>
+        <td>{{total_ven}}</td>
+      </tr>
+    </table>
 
-            <table>
-                <tr>
-                    <th style="width: 15%;">Descripción</th>
-                    <th style="width: 10%;">Costo S/.</th>
-                </tr>
-                <tr>
-                    <td >Sub-Total</td>
-                    <td >{{cabecera.total}}</td>
-                </tr>
-                <tr>
-                    <td >Fee(12%)</td>
-                    <td >{{cabecera.fee}}</td>
-                </tr>
-                <tr>
-                    <td >Total</td>
-                    <td >{{ total }}</td>
-                </tr>
-                <tr>
-                    <td >IGV</td>
-                    <td >{{ igv }}</td>
-                    
-                </tr>
-                <tr>
-                    <td >Gran Total Venta</td>
-                    <td >{{ total_ven }}</td>
-                </tr>
-            </table>
+    <!-- Pie de página -->
+    <div class="footer">
+      <p>¡Gracias por su preferencia!</p>
+      <p>Síguenos en:</p>
+      <p>
+        <a href="https://facebook.com">Facebook</a> |
+        <a href="https://twitter.com">Twitter</a> |
+        <a href="https://instagram.com">Instagram</a>
+      </p>
+    </div>
   </body>
- </html> 
+</html>

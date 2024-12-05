@@ -42,6 +42,7 @@ urlpatterns = [
     path('visualizar_cotizacion_imprimir/<int:numcot>', visualizar_cotizacion,name="visualizar_cotizacion_imprimir"),
     path('', Login,name="login"),
     path('logoutapp', Logoutapp,name="logoutapp"),
-    path('accounts/login/', Login, name='login'),
+    path('accounts/login/', Login, name='login')
+  
    
 ]

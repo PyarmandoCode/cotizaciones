@@ -142,9 +142,9 @@ def UpdateCrudProductos(request):
                 provee=Proveedor.objects.get(id=proveedor_producto)
             productos.proveedor=provee
 
-            productos.costo_real=request.POST.get('txtcostoreal')
-            productos.costo_ofrecido=request.POST.get('txtcostofrecido')
-            productos.ganancia=request.POST.get('txtganancia')
+            productos.costo_real=float(request.POST.get('txtcostoreal'))
+            productos.costo_ofrecido=float(request.POST.get('txtcostofrecido'))
+            productos.ganancia=float(request.POST.get('txtganancia'))
 
             umedida_producto = request.POST.get('cmbumedida')
             if umedida_producto =="":
@@ -227,7 +227,7 @@ class AutocompleteServicios(View):
         query = self.request.GET.get('query', '')
         items = Producto.objects.filter(Q(nombre__icontains=query))
         #suggestions = [item.nombre for item in items]
-        suggestions = [{'nombre': item.nombre, 'id': item.pk } for item in items]
+        suggestions = [{'nombre': item.nombre, 'precio': item.costo_real,'id': item.pk } for item in items]
         return JsonResponse({'suggestions': suggestions})
     
   
@@ -519,7 +519,6 @@ def Grabar_item_cotizacion(request):
             precio = request.POST.get('precio')
             preciocompra = request.POST.get('preciocompra')
             cantidad = request.POST.get('cantidad')
-            fechas = request.POST.get('fechas')
             total = request.POST.get('total')
             costocompra= request.POST.get('costocompra')
            
@@ -539,7 +538,7 @@ def Grabar_item_cotizacion(request):
                             lstdetallecotizacion[int(iddetalle)-1]["precio"]=precio
                             lstdetallecotizacion[int(iddetalle)-1]["preciocompra"]=preciocompra
                             lstdetallecotizacion[int(iddetalle)-1]["cantidad"]=cantidad
-                            lstdetallecotizacion[int(iddetalle)-1]["fechas"]=fechas
+                          
                             lstdetallecotizacion[int(iddetalle)-1]["costo"]=total
                             lstdetallecotizacion[int(iddetalle)-1]["costocompra"]=costocompra
                         request.session['lstdetallecotizacion'] = lstdetallecotizacion
@@ -558,7 +557,7 @@ def Grabar_item_cotizacion(request):
                             "precio":precio,
                             "preciocompra":preciocompra,
                             "cantidad":cantidad,
-                            "fechas":fechas,
+                            
                             "costo":total,
                             "costocompra":costocompra
                         }
@@ -671,7 +670,7 @@ def grabar_cotizacion(data_items, numcot,tipocot,cliente,evento,fecha,capacidad,
                         precio=item["precio"],
                         preciocompra=item["preciocompra"],
                         cantidad=item["cantidad"],
-                        fechas=item["fechas"],
+                       
                         costo=item["costo"],
                         costocompra=item["costocompra"]
                     )
@@ -810,7 +809,7 @@ def modificar_item_cotizacion(request):
                         precio=request.POST.get('precio'),
                         preciocompra=request.POST.get('preciocompra'),
                         cantidad=request.POST.get('cantidad'),
-                        fechas=request.POST.get('fechas'),
+                       
                         costo=request.POST.get('total'),
                         costocompra=request.POST.get('costocompra')
                     )
@@ -824,7 +823,7 @@ def modificar_item_cotizacion(request):
                 detalle_cotizacion.precio=request.POST.get('precio')
                 detalle_cotizacion.preciocompra=request.POST.get('preciocompra')
                 detalle_cotizacion.cantidad=request.POST.get('cantidad')
-                detalle_cotizacion.fechas=request.POST.get('fechas')
+                
                 detalle_cotizacion.costo=request.POST.get('total')
                 detalle_cotizacion.costocompra=request.POST.get('costocompra')
                 detalle_cotizacion.save()
@@ -959,4 +958,8 @@ def visualizar_cotizacion(request,numcot):
 
      return response
     
+
     
+
+
+
