@@ -1,0 +1,562 @@
+{% extends 'base.html' %}
+{% block title %}Pagina Principal{% endblock %}
+{% block content %}
+{% load custom_filters %}
+
+
+<div class="adminx-content">
+  <div class="adminx-main-content">
+    <div class="container-fluid">
+      
+      <!-- BreadCrumb -->
+      <nav aria-label="breadcrumb" role="navigation">
+        <ol class="breadcrumb adminx-page-breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'index_home' %}">Dashboard</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'listar_compras' %}">Compras</a></li>
+        </ol>
+      </nav>
+        <div class="pb-33">
+          <h1 id="titulo">Compras</h1>
+          
+        </div>
+
+        <div class="card mb-grid">
+          <div class="card-header">
+            <div class="card-header-title">Datos de la Compra</div>
+          </div>
+          <div class="card-body">
+           
+          <form id="frmcompras" method="POST"  enctype="multipart/form-data">{% csrf_token %}  
+
+            <div class="form-row">  
+
+        
+              <div class="col-md-3 mb-3">
+                <label class="form-label"  id="lblnumcotizacion" >NroCompra</label>
+                <input type="text" class="form-control" id="numcompra" 
+                 autocomplete="off" value="{{idcompra}}" disabled
+                >
+              </div>
+            </div>  
+
+              <div class="form-row">
+                  <div class="col-md-3 mb-3">
+                    <label class="form-label" for="cmbproveedores">Proveedor</label>
+                    <select class="form-control" id="cmbproveedores">
+                      <option  value="" selected="selected">---SELECCIONE---</option>
+                        {% for item in Proveedores %}
+                            <option value="{{item.id}}">{{item.nombre}}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  
+                  <input type="hidden" id="idproveedor">
+
+                  <div class="col-md-3 mb-3" id="cntfecha" >
+                    <label class="form-label"  id="lblfecha" class="oculto" >Fecha</label>
+                    <input type="text" class="form-control" id="fecha" placeholder="Fecha" data-input data-format="d/m/Y">
+                  </div>
+
+
+                <div class="col-md-6 mb-3">
+                  <label for="comentario" class="form-label">Comentario:</label>
+                  <br>
+                  <textarea id="comentario" name="comentario" rows="5"  maxlength="280" ></textarea>
+                </div> 
+              </div>
+          </div>
+        </div>
+
+    <div class="pb-3 button-row"  >
+      <a href="#" class="btn btn-lg btn-labeled-right btn-info btn-sm mr-2 btndetalle">
+        <span class="btn-pill btn-label">
+          <span class="oi oi-list" aria-hidden="true"></span>
+        </span>
+        
+        <span class="btn-text">Agregar</span>
+      </a>  
+    </div>
+        <div class="row">
+          <div class="col">
+            <div class="card mb-grid">
+              <div class="table-responsive-md">
+                <table  class="table table-actions table-striped table-hover mb-0"  
+                id=datatable-compras data-table>
+                  <thead>
+                    <tr>
+                    
+                      <th scope="col">#</th>
+                      <th scope="col">Productos</th>
+                      <th scope="col">CTD</th>
+                      <th scope="col">Precio Compra</th>
+                      <th scope="col">Precio Venta</th>
+                      <th scope="col">Costo Compra Soles</th>
+                      <th scope="col"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                    {% for item in detallecompra %}  
+                    <tr id="item-{{forloop.counter}}">
+                      <td> {{ forloop.counter }} </td> 
+                      <td>{{item.servicio}}</td>
+                      <td>{{item.cantidad}}</td>
+                      <td>{{item.preciocompra|floatformat:"2"|replace_comma}}</td>
+                      <td>{{item.precioventa|floatformat:"2"|replace_comma}}</td>
+                      <td>{{item.subtotal|floatformat:"2"|replace_comma}}</td>
+                      <td class="btn-container-delete">
+                        <a href="#" class="btn btn-icon btn-sm mr-2 btndetallemodal">
+                          <i data-feather="eye"></i>
+                        </a>
+                        <a href="#" class="btn btn-icon btn-sm mr-2 bteliminardetalle" onClick="" id="bteliminardetalle">
+                          <i data-feather="trash-2"></i>
+                        </a>
+                      </td>
+                    </tr>
+                  {% endfor %}   
+                   
+                  </tbody>
+                
+                  <tr>
+                    <td colspan="6" style="height: 20px; border: none;"></td>
+                  </tr>
+                  <thead class="header-totales">
+                    <tr>
+                        <th colspan="2">Descripción</th>
+                        <th>Costo Total Soles</th>
+                        <!-- Aquí van otras columnas del encabezado -->
+                    </tr>
+                </thead>
+            
+                  <tfoot class="footer-totales">
+                    <tr>
+                        <th colspan="2" class="subtotal">Sub-Total:</th>
+                        <th id="totalSubt" class="subtotal"></th>
+                    </tr>
+                   
+                    <tr>
+                        <th colspan="2" class="igv">IGV:(0.18)</th>
+                        <th id="totalIgv" class="igv"></th>
+                    </tr>
+                    <tr>
+                        <th colspan="2" class="grantotal">Total Venta:</th>
+                        <th id="totalGran" class="grantotal"></th>
+                    </tr>
+                   
+                </tfoot>
+                </table>
+                <br/>
+              
+           <div class="pb-3 button-row">
+                <div class="btn-group" role="group" aria-label="Botones de acción">
+                    <!-- Primer botón -->
+                    <a href="#" class="btn btn-lg btn-info btn-sm btngrabar mr-2" id="btngrabar">
+                        <span class="oi oi-check mr-1" aria-hidden="true"></span> <!-- Moví el icono a la izquierda -->
+                        <button type="submit"  class="btn btn-icon btn-info">Grabar</button>
+                    </a>
+                    <!-- Segundo botón -->
+                    
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>  
+
+
+
+<div class="modal fade" id="ModalItemCompras" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header fondo-header">
+           <p style="color:white;" class="modal-title" id="ModalItemCompras">Ingrese la Siguiente Información</p>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="frmitemcompra" method="POST"  enctype="multipart/form-data">{% csrf_token %}
+              <div class="mb-3">
+              
+                <label for="servicio" class="col-form-label">Producto:</label>
+                <input type="text" class="form-control" id="item_servicio" required="required" autocomplete="off" >
+                <ul id="suggestions-list"></ul>
+                <input type="hidden" class="form-control" id="id_servicio" >
+              
+                <label for="preciocompra" class="col-form-label">Precio Compra:</label>
+                <input type="number" class="form-control" id="preciocompra"   >  
+                
+                <label for="precioventa" class="col-form-label">Precio Venta:</label>
+                <input type="number" class="form-control" id="precioventa"   > 
+
+                <label for="cantidad" class="col-form-label">Cantidad:</label>
+                <input type="number" class="form-control" id="cantidad"  >
+              </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="submit" class="btn btn-icon btn-info">Grabar</button>
+        </div>
+    </form>
+      </div>
+    </div>
+  </div>
+
+{% block javascripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        flatpickr("#fecha", {
+            dateFormat: "d/m/Y",
+            locale: "es",
+        });
+    });
+    
+</script>
+
+<script>
+    $(document).ready(function() {
+        var table = $('[data-table]').DataTable({
+        language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                  },
+                  bLengthChange: true,
+                  "iDisplayLength": 10,
+                  bInfo: false,
+                  responsive: true,
+                  "bAutoWidth": false,
+                  "columns": [
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                  ]
+              });
+        });
+</script>
+      
+
+<script>
+    $('.btndetalle').on('click', function() {
+      $('#ModalItemCompras').modal('show');
+      guardarDatosEnLocalStorage();  
+  });
+</script>
+
+
+
+
+
+<script>
+    $(document).ready(function () {
+        var selectedIndex = -1; // Índice del elemento seleccionado
+        $('#item_servicio').on('input', function () {
+            var query = $(this).val();
+            $.ajax({
+              url: '{% url 'autocomplete'  %}',  // Ruta a tu vista de autocompletado
+                type: 'GET',
+                data: {'query': query},
+                dataType: 'json',
+                success: function (data) {
+                    var suggestions = data.suggestions;
+                    $('#suggestions-list').empty();
+
+                    // Mostrar las sugerencias en la lista
+                    suggestions.forEach(function (item, index) {
+                        var listItem = $('<li>').text(item.nombre);
+
+                        // Agregar la clase 'selected' al elemento seleccionado
+                        if (index === selectedIndex) {
+                            listItem.addClass('selected');
+                        }
+
+                        listItem.data('id', item.id);
+                        listItem.data('precio', item.precio);
+                    
+                        listItem.click(function() {
+                          $('#id_servicio').val(item.id);
+                         
+                      });
+                        $('#suggestions-list').append(listItem);
+                    });
+                },
+                error: function (error) {
+                    console.error('Error al obtener sugerencias:', error);
+                }
+            });
+        });
+
+        // Manejar clic en una sugerencia
+        $('#suggestions-list').on('click', 'li', function () {
+            var suggestion = $(this).text();
+            var currentValue = $('#item_servicio').val();
+            var cursorPosition = $('#item_servicio')[0].selectionStart;
+            var newValue = currentValue.substring(0, cursorPosition) + suggestion + currentValue.substring(cursorPosition);
+            $('#item_servicio').val(newValue);
+            
+            // Borra el carácter actual en el input
+            $('#item_servicio').val(function(_, val) {
+                return val.substr(0, cursorPosition - 4) + val.substr(cursorPosition);
+            });
+
+            $('#suggestions-list').empty(); // Limpiar la lista
+        });
+        // Manejar las teclas de flecha
+       $('#item_servicio').on('keydown', function (e) {
+        var selectedItem = $('#suggestions-list .selected');
+        var suggestions = $('#suggestions-list li');
+        var currentSelected = $('#suggestions-list li.selected');
+        console.log('tecla presionada',e.key);
+
+        switch (e.key) {
+            case 'ArrowUp': // Flecha arriba
+                selectedIndex = Math.max(0, selectedIndex - 1);
+                console.log('selectedIndex:', selectedIndex);
+                break;
+            case 'ArrowDown': // Flecha abajo
+                selectedIndex = Math.min(suggestions.length - 1, selectedIndex + 1);
+                break;
+            case 'Enter': // Enter
+                if (currentSelected.length > 0) {
+                    var suggestion = currentSelected.text();
+                    var currentValue = $('#item_servicio').val();
+                    var cursorPosition = $('#item_servicio')[0].selectionStart;
+                    var newValue = currentValue.substring(0, cursorPosition) + suggestion + currentValue.substring(cursorPosition);
+                    $('#item_servicio').val(newValue);
+                    var id = selectedItem.data('id');
+                    $('#id_servicio').val(id);
+                    
+                    // Borra el carácter actual en el input
+                    $('#item_servicio').val(function(_, val) {
+                        return val.substr(0, cursorPosition - 4) + val.substr(cursorPosition);
+                    });
+
+                    $('#suggestions-list').empty(); // Limpiar la lista
+                    selectedIndex = -1; // Reinicia el índice seleccionado
+                }
+                break;
+                
+            default:
+                return; // Salir si no es una tecla de flecha o Enter
+        }
+
+            // Quitar la clase 'selected' de todos los elementos y agregarla al elemento seleccionado
+            suggestions.removeClass('selected');
+            $(suggestions[selectedIndex]).addClass('selected');
+           
+            // Mover el scroll hacia abajo
+            var container = $('#suggestions-list');
+            var scrollTo = $(suggestions[selectedIndex]).position().top - container.position().top + container.scrollTop();
+            container.scrollTop(scrollTo);
+        });
+    });
+</script>
+
+<script>
+  function calcularTotales() {
+    let subtotal = 0;
+    let igv = 0;
+    let total = 0;
+
+    // Recorre las filas de la tabla
+    $('#datatable-compras tbody tr').each(function () {
+        const costoCompra = parseFloat($(this).find('td:nth-child(6)').text().replace(',', '.')) || 0;
+        subtotal += costoCompra;
+    });
+
+    igv = subtotal * 0.18;  // 18% de IGV
+    total = subtotal + igv;
+
+    // Actualiza los valores en la tabla
+    $('#totalSubt').text(subtotal.toFixed(2));
+    $('#totalIgv').text(igv.toFixed(2));
+    $('#totalGran').text(total.toFixed(2));
+}
+
+
+</script> 
+
+<script>
+  $(document).ready(function () {
+    llenarCamposDesdeLocalStorage();
+    calcularTotales();
+    // Llama a calcularTotales() después de agregar un nuevo producto
+    $('.btndetalle').on('click', function () {
+        // Lógica para agregar producto...
+        calcularTotales();
+    });
+    // Llama a calcularTotales() después de eliminar un producto
+    $('.bteliminardetalle').on('click', function () {
+        $(this).closest('tr').remove();
+        calcularTotales();
+    });
+});
+</script> 
+
+<script>
+  // Función para guardar los datos del formulario en el almacenamiento local
+  function guardarDatosEnLocalStorage() {
+    var campos = ["cmbproveedores", "idproveedor", "fecha", "comentario"];
+    campos.forEach(function(campo) {
+      var valor = document.getElementById(campo).value;
+      localStorage.setItem("input" + campo + "Value", valor);
+    });
+  }
+  
+  // Función para llenar los campos del formulario desde el almacenamiento local
+  function llenarCamposDesdeLocalStorage() {
+    var campos = ["cmbproveedores", "idproveedor", "fecha", "comentario"];
+    campos.forEach(function(campo) {
+      var valor = localStorage.getItem("input" + campo + "Value");
+      if (valor !== null) {
+        document.getElementById(campo).value = valor;
+      }
+    });
+  }
+
+  function eliminarDatosDeLocalStorage() {
+    var campos = ["cmbproveedores", "idproveedor", "fecha", "comentario"];
+    campos.forEach(function(campo) {
+        var clave = "input" + campo + "Value"; // Generar la clave como en guardarDatosEnLocalStorage
+        if (localStorage.getItem(clave)) {
+            localStorage.removeItem(clave); // Eliminar el dato del localStorage
+            console.log(`Se eliminó la clave: ${clave}`);
+        } else {
+            console.log(`La clave ${clave} no existe en localStorage.`);
+        }
+    });
+}
+
+</script> 
+
+
+<script>
+  $("#frmitemcompra").submit(function (e) {
+    e.preventDefault();
+    
+    var formData = new FormData();
+    var campos = {
+        'numcompra': $('#numcompra').val(),
+        'id_servicio': $('#id_servicio').val(),
+        'preciocompra': $('#preciocompra').val(),
+        'precioventa': $('#precioventa').val(),
+        'cantidad': $('#cantidad').val(),
+        'action': 'registrar_compras',
+        'csrfmiddlewaretoken': '{{ csrf_token }}'
+    };
+
+    $.each(campos, function(nombreCampo, valorCampo) {
+        formData.append(nombreCampo, valorCampo);
+    });
+
+    var url = '{% url "Grabar_item_compra" %}';
+
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: formData,
+        cache: false,
+        processData: false,
+        contentType: false,
+        success: function (json) {
+            if (json.flag) {
+                Swal.fire(
+                    'Felicitaciones',
+                    json.msg,
+                    'success'
+                ).then(() => {
+                     window.location.href = '/Compra_crear/'; 
+                });
+            } else {
+                Swal.fire(
+                    'ERROR',
+                    json.msg,
+                    'error'
+                )
+            }
+        },
+        error: function (response) {
+            console.log(response)
+        }      
+    });
+});
+
+</script>
+
+<script>
+  var formData = new FormData();
+  $("#frmcompras").submit(function (e) {
+      e.preventDefault();
+      var fecha = $('#fecha').val();
+      var partesFecha = fecha.split('/');
+      var dia = partesFecha[0];
+      var mes = partesFecha[1];
+      var año = partesFecha[2];
+      var fechaFormateada = año + '-' + mes + '-' + dia;
+      formData.append('fecha',fechaFormateada)
+      formData.append('comentario',$('#comentario').val())
+      formData.append('cmbproveedores',$('#cmbproveedores').val())
+      formData.append('totalGran',$('#totalGran').text())
+      formData.append('action','grabar_compra')
+      formData.append('csrfmiddlewaretoken', '{{ csrf_token }}')
+      let url = "{% url 'Compra_crear'  %}"; 
+      $.ajax({
+          type: 'POST',
+          url: url,
+          data: formData,
+          cache: false,
+          processData: false,
+          contentType: false,
+          enctype: 'multipart/form-data',
+          success: function (json) {
+              if (json.flag) {
+                  eliminarDatosDeLocalStorage();
+                  Swal.fire(
+                      'Felicitaciones',
+                      json.msg,
+                      'success'
+                      ).then(() => {
+                        window.location.href = '/listar_compras';  
+                        });
+              } else {
+                  Swal.fire(
+                      'ERROR',
+                      json.msg,
+                      'error'
+                      
+                  )
+              }
+          },
+          error: function (response) {
+              console.log(response)
+          }
+      });
+  });
+</script> 
+
+  
+{% endblock javascripts %}
+{% endblock  %}
+
+
+

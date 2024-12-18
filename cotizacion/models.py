@@ -78,7 +78,7 @@ class Producto(models.Model):
     #concepto=models.TextField(max_length=500,blank=True, null=True
     costo_real=models.DecimalField(max_digits=7, decimal_places=2)
     costo_ofrecido=models.DecimalField(max_digits=7, decimal_places=2)
-    ganancia=models.DecimalField(max_digits=7, decimal_places=2)
+    ganancia=models.DecimalField(max_digits=7, decimal_places=2,blank=True, null=True)
     umedida=models.ForeignKey(Umedida, models.DO_NOTHING)
     state = models.BooleanField(default=True)
     stock = models.PositiveIntegerField(default=0)
@@ -119,12 +119,12 @@ class Cotizacion(models.Model):
 
     cliente=models.ForeignKey(Cliente, models.DO_NOTHING)
     nombre_evento=models.CharField(max_length=200,blank=True, null=True)
-    fecha_cotizacion=models.DateField(blank=True, null=True)
+    fecha_cotizacion=models.DateTimeField(blank=True, null=True)
     capacidad=models.CharField(max_length=200,blank=True, null=True)
     lugar=models.CharField(max_length=100,blank=True, null=True)
     comentario=models.TextField(blank=True, null=True)
     
-    fee=models.DecimalField(max_digits=7, decimal_places=2)
+    fee=models.DecimalField(max_digits=7, decimal_places=2,blank=True, null=True)
     mas_sin_igv=models.BooleanField()
     persona_creo_cotiza = models.ForeignKey(User, on_delete=models.CASCADE)
     total=models.DecimalField(max_digits=7, decimal_places=2,blank=True, null=True)
@@ -132,11 +132,12 @@ class Cotizacion(models.Model):
     ganancia=models.DecimalField(max_digits=7, decimal_places=2,blank=True, null=True)
     estado=models.ForeignKey(EstadoCotizacion, on_delete=models.CASCADE)
     con_que_empresa=models.ForeignKey(Empresa, on_delete=models.CASCADE)
+    convertido_factura=models.BooleanField(default=False)
     state = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'Cotizacion'
-        ordering = ['fecha_cotizacion']
+        ordering = ['-fecha_cotizacion']
 
     def __str__(self):
         return self.nrocotizacion
@@ -198,65 +199,90 @@ class OrdenCompra(models.Model):
     def __str__(self):
         return self.cotizacion
 
-#este cambio es para los modelos
-
-class Compra(models.Model):
-    proveedor = models.ForeignKey('Proveedor', on_delete=models.CASCADE)
-    fecha_compra = models.DateField()
-    
-
-    def calcular_total(self):
-        # Suma los subtotales de los detalles relacionados con esta compra
-        return sum(detalle.subtotal for detalle in self.detalles.all())
-
-    calcular_total.short_description = "Total"  # Etiqueta para mostrar en el admin
 
     
+class Tipo_Venta(models.Model):
+    tipo = models.CharField(max_length=200)
+    state = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'Tipo_Venta'
+
     def __str__(self):
-        return f"Compra {self.id} - {self.proveedor.nombre}"
-    
-class DetalleCompra(models.Model):
-    compra = models.ForeignKey(Compra, related_name='detalles', on_delete=models.CASCADE)
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
-    cantidad = models.PositiveIntegerField()
-    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
-    subtotal = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-
-
-    def save(self, *args, **kwargs):
-        # Verificamos si se está actualizando el detalle
-        if self.pk:
-            detalle_original = DetalleCompra.objects.get(pk=self.pk)
-            diferencia_cantidad = self.cantidad - detalle_original.cantidad
-        else:
-            diferencia_cantidad = self.cantidad
-
-        # Actualiza el subtotal
-        self.subtotal = self.cantidad * self.precio_unitario
-        super().save(*args, **kwargs)
-
-        # Actualiza el stock del producto
-        self.producto.stock += diferencia_cantidad
-        self.producto.save()
- 
-    def __str__(self):
-        return f"{self.producto.nombre} - {self.cantidad} x {self.precio_unitario}"
+        return self.tipo    
 
   
-    # def save(self, *args, **kwargs):
-    #     # Actualizar el stock al crear o actualizar un detalle de compra
-    #     self.calcular_subtotal()
-        
-        # Actualizamos el stock del producto
-        #self.producto.actualizar_stock(self.cantidad)
+class Venta(models.Model):
+    nroventa=models.CharField(max_length=8,primary_key=True)
+    nrodocumento=models.CharField(max_length=18,blank=True, null=True) #Factura,Boleta,ETC
+    tipo_venta=models.ForeignKey(Tipo_Venta, models.DO_NOTHING,blank=True, null=True)
+    nrocotizacion=models.CharField(max_length=8,blank=True, null=True)# Aca se guarda el numero de cotizacion con que se creo esa venta
+    cliente=models.ForeignKey(Cliente, models.DO_NOTHING)
+    fecha_venta=models.DateField(blank=True, null=True)
+    comentario=models.TextField(blank=True, null=True)
+    persona_creo_venta = models.ForeignKey(User, on_delete=models.CASCADE)
+    total_neto=models.DecimalField(max_digits=7, decimal_places=2,blank=True, null=True)
+    total_igv=models.DecimalField(max_digits=7, decimal_places=2,blank=True, null=True)
+    total_descuento=models.DecimalField(max_digits=7, decimal_places=2,blank=True, null=True,default=0.0)
+    con_que_empresa=models.ForeignKey(Empresa, on_delete=models.CASCADE)
+    state = models.BooleanField(default=True)
 
-        #super(DetalleCompra, self).save(*args, **kwargs)
+    class Meta:
+        db_table = 'Venta'
+        ordering = ['-fecha_venta']
 
-    # def __str__(self):
-    #     return f"Detalle {self.id} - {self.producto.nombre}"    
+    def __str__(self):
+        return self.nroventa
+
+class DetalleVenta(models.Model):
+    venta=models.ForeignKey(Venta,models.DO_NOTHING)
+    producto=models.ForeignKey(Producto, models.DO_NOTHING)
+    cantidad=models.IntegerField()
+    detalle=models.TextField(max_length=500,blank=True, null=True)
+    state = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'DetalleVenta'
+
+    def __str__(self):
+        return f'{self.id}'
 
 
+class Compras(models.Model):
+    numero_compra = models.CharField(max_length=50, unique=True)
+    fecha = models.DateTimeField()
+    proveedor = models.ForeignKey('Proveedor', on_delete=models.CASCADE)
+    total = models.DecimalField(max_digits=10, decimal_places=2)
+    detalle=models.TextField(max_length=500,blank=True, null=True)
+    persona_creo_venta = models.ForeignKey(User, on_delete=models.CASCADE,blank=True, null=True)
+    con_que_empresa=models.ForeignKey(Empresa, on_delete=models.CASCADE,blank=True, null=True)
+    state = models.BooleanField(default=True)
 
+    def __str__(self):
+        return f'Compra {self.numero_compra} - {self.proveedor}'
+
+    class Meta:
+        db_table = 'Compras'
+        ordering = ['-fecha']
+        verbose_name = 'Compras'
+        verbose_name_plural = 'Compras'
+
+    
+class DetalleCompras(models.Model):
+    compra = models.ForeignKey(Compras, on_delete=models.CASCADE)
+    producto=models.ForeignKey(Producto, models.DO_NOTHING)
+    cantidad = models.IntegerField(default=0)
+    precio_compra = models.DecimalField(max_digits=10, decimal_places=2)
+    precio_venta = models.DecimalField(max_digits=10, decimal_places=2,default=0)
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f'{self.producto} - {self.cantidad} unidades'
+
+    class Meta:
+        db_table = 'DetalleCompras'
+        verbose_name = 'Detalle de Compra'
+        verbose_name_plural = 'Detalles de Compra'
 
 
 

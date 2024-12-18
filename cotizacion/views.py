@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from .models import Producto,Categoria,Umedida,Proveedor,Cliente,DetalleCotizacion,Cotizacion,Tipo_Cotizacion,Empresa,EstadoCotizacion
+from .models import Producto,Categoria,Umedida,Proveedor,Cliente,DetalleCotizacion,Cotizacion,Tipo_Cotizacion,Empresa,EstadoCotizacion,Venta,DetalleVenta,Tipo_Venta,Compras,DetalleCompras
 from django.http import JsonResponse,HttpResponse
 from django.views.generic import  View
 
@@ -144,7 +144,7 @@ def UpdateCrudProductos(request):
 
             productos.costo_real=float(request.POST.get('txtcostoreal'))
             productos.costo_ofrecido=float(request.POST.get('txtcostofrecido'))
-            productos.ganancia=float(request.POST.get('txtganancia'))
+            productos.ganancia=0
 
             umedida_producto = request.POST.get('cmbumedida')
             if umedida_producto =="":
@@ -197,7 +197,7 @@ def CreateCrudProductos(request):
             proveedor_producto = request.POST.get('cmbproveedores')
             costoreal = request.POST.get('txtcostoreal')
             costofrecido = request.POST.get('txtcostofrecido')
-            ganancia = request.POST.get('txtganancia')
+            ganancia =0
             unidadmedida_producto = request.POST.get('cmbumedida')
             categoria=Categoria.objects.get(id=categoria_producto)
             proveedor=Proveedor.objects.get(id=proveedor_producto)
@@ -214,10 +214,10 @@ def CreateCrudProductos(request):
             
         except Exception as error:
             response_data['flag'] = False
-            response_data['msg'] = f'No se Registro el Servicio Correctamente {error}'
+            response_data['msg'] = f'No se Registro el Producto Correctamente {error}'
         else:
             response_data['flag'] = True
-            response_data['msg'] = 'Se Registro con exito el Servicio'   
+            response_data['msg'] = 'Se Registro con exito el Producto'   
         return JsonResponse(response_data)   
     return render(request,template_name) 
 
@@ -227,7 +227,7 @@ class AutocompleteServicios(View):
         query = self.request.GET.get('query', '')
         items = Producto.objects.filter(Q(nombre__icontains=query))
         #suggestions = [item.nombre for item in items]
-        suggestions = [{'nombre': item.nombre, 'precio': item.costo_real,'id': item.pk } for item in items]
+        suggestions = [{'nombre': item.nombre, 'precio': item.costo_real,'precio_venta':item.costo_ofrecido,'stock':item.stock,'id': item.pk } for item in items]
         return JsonResponse({'suggestions': suggestions})
     
   
@@ -485,8 +485,8 @@ class AutocompleteClientes(View):
 @login_required
 def Listar_cotizaciones(request):
     template_name="Listado_cotizaciones.html"
-    cotizaciones=Cotizacion.objects.filter(state=True)#orm QUERYSET
-    cotizaciones_ordenadas = cotizaciones.order_by('fecha_cotizacion')
+    cotizaciones=Cotizacion.objects.filter(state=True,convertido_factura=False)#orm QUERYSET
+    cotizaciones_ordenadas = cotizaciones.order_by('-fecha_cotizacion')
     context = {
         "cotizaciones": cotizaciones_ordenadas,
     }
@@ -601,12 +601,12 @@ def Cotizacion_crear(request,numcot,tipo,actualizar):
                 objcliente=Cliente.objects.get(id=idcliente)
                 fecha_cotizacion = request.POST.get('fecha')
                 comentario = request.POST.get('comentario')
-                totalFee = request.POST.get('totalFee')
+                totalFee = 0
                 mas_sin_igv=True
                 obj_user=User.objects.get(pk=1)
                 persona_creo_cotiza=obj_user
                 total=request.POST.get('totalSubt')
-                totalcompra=request.POST.get('totalcompra')
+                totalcompra=0
                 obj_estado_cot=EstadoCotizacion.objects.get(pk=1)
                 estado=obj_estado_cot
                 codempresa=int(request.session.get('idempresa'))
@@ -734,7 +734,7 @@ def Cotizacion_visualizar(request,numcot,tipo,actualizar):
                 objcliente=Cliente.objects.get(id=idcliente)
                 fecha_cotizacion = request.POST.get('fecha')
                 comentario = request.POST.get('comentario')
-                totalFee = request.POST.get('totalFee')
+                totalFee = 0
                 mas_sin_igv=True
                 user_logeado=response_data['id']
                 obj_user=User.objects.get(pk=user_logeado)
@@ -867,9 +867,9 @@ def Actualizar_totales_bd(request):
             lugar = request.POST.get('lugar')    
             fecha_cotizacion = request.POST.get('fecha')
             comentario = request.POST.get('comentario')
-            totalFee = request.POST.get('totalFee')
+            totalFee = 0
             totalSubt = request.POST.get('totalSubt')
-            totalcompra = request.POST.get('totalcompra')
+            totalcompra = 0
             estadocotizacion=request.POST.get('estadocotizacion')
             print(f"estadodecotizacionact {estadocotizacion}")
 
@@ -958,8 +958,223 @@ def visualizar_cotizacion(request,numcot):
 
      return response
     
-
+@login_required
+def Listar_ventas(request):
+    template_name="Listado_Ventas.html"
+    ventas=Venta.objects.filter(state=True)#orm QUERYSET
+    ventas_ordenadas = ventas.order_by('fecha_venta')
+    context = {
+        "ventas": ventas_ordenadas,
+    }
+    return render(request,template_name,context) 
     
+
+@login_required
+def Cotizacion_a_Ventas(request,numcot):
+    response_data = {}
+    context={}
+    template_name="Ventas.html"
+    #Generando el codigo de la venta
+    ultima_venta = Venta.objects.order_by('-nroventa').first()
+    if ultima_venta:
+        max_valor = ultima_venta.nroventa
+    else:
+        max_valor = '10000000'
+    # Incrementar el valor como un número entero
+    nuevo_valor = str(int(max_valor) + 1)    
+    cabeceracotizacion=Cotizacion.objects.get(pk=numcot)
+    lstdetallecotizacion = DetalleCotizacion.objects.filter(cotizacion=numcot,state=True)
+    tipo_venta=Tipo_Venta.objects.filter(state=True)
+    if request.method == 'GET':
+        context = {
+             "detalle": lstdetallecotizacion,
+             "cabecera":cabeceracotizacion,
+             "tipoventa":tipo_venta
+        }
+    else:   
+            if request.POST.get('action') == 'cotizacion_a_ventas': 
+                try:
+                    valortp=request.POST.get('cmbtipoventa')
+                    tipoventa=Tipo_Venta.objects.get(pk=valortp)
+                    venta_cabecera=Venta.objects.create(
+                        nroventa=nuevo_valor,
+                        nrodocumento=request.POST.get('numdocumento'),
+                        nrocotizacion=numcot,
+                        cliente=cabeceracotizacion.cliente,
+                        fecha_venta=request.POST.get('fecha'),
+                        comentario=request.POST.get('comentario'),
+                        persona_creo_venta=cabeceracotizacion.persona_creo_cotiza,
+                        total_neto=cabeceracotizacion.total,
+                        total_igv=request.POST.get('totalIgv'),
+                        total_descuento=request.POST.get('descuento'),
+                        tipo_venta=tipoventa,
+                        con_que_empresa=cabeceracotizacion.con_que_empresa
+                    )
+                    #Guardando el detalle de la venta
+                    #   
+                    for item in lstdetallecotizacion:
+                        objproducto = Producto.objects.get(pk=item.servicio.pk)
+                        DetalleVenta.objects.create(
+                            venta=venta_cabecera,
+                            producto=objproducto,
+                            detalle=item.detalle,
+                            cantidad=item.cantidad
+                        )
+                          # Restar la cantidad vendida del stock del producto
+                        objproducto.stock -= item.cantidad
+                        objproducto.save()  # Guardar los cambios en la base de datos
+                    cabeceracotizacion.convertido_factura=True
+                    cabeceracotizacion.save(update_fields=['convertido_factura'])
+                except Exception as error:
+                    response_data['flag'] = False
+                    response_data['msg'] = f'No se Registro La Venta Correctamente {error}'        
+                else:  
+                    response_data['flag'] = True  
+                    response_data['msg'] = 'Se Registro con exito La Venta' 
+            return JsonResponse(response_data) 
+    return render(request, template_name, context)
+
+@login_required
+def Visualizar_Venta(request,nroventa):
+    context={}
+    template_name="Visualizar_Venta.html"
+    cabeceraventa=Venta.objects.get(pk=nroventa)
+    lstdetalleventa = DetalleVenta.objects.filter(venta=nroventa)
+    tipo_venta=Tipo_Venta.objects.filter(state=True)
+    #Seleccionado el color para mostrarla en el Combo
+    tipoventa=Tipo_Venta.objects.get(id=cabeceraventa.tipo_venta.id)
+    context = {
+                "detalle": lstdetalleventa,
+                "cabecera":cabeceraventa,
+                "tipoventa":tipo_venta,
+                "tipoventaseleccionada":tipoventa
+        }
+    return render(request, template_name, context)
+
+
+#LO REFERENTE A COMPRAS
+
+@login_required
+def Listar_compras(request):
+    template_name="Listado_Compras.html"
+    compras=Compras.objects.filter(state=True)#orm QUERYSET
+    compras_ordenadas = compras.order_by('-fecha')
+    context = {
+        "compras": compras_ordenadas,
+    }
+    return render(request,template_name,context)    
+
+
+#GUARDA LOS ITEMS DE LA COMPRA EN MEMORIA
+@login_required
+def Grabar_item_compra(request):
+    response_data = {}
+    template_name="compras.html"
+    if request.POST.get('action') =='registrar_compras':
+        try:
+            lstdetallecompra = request.session.get('lstdetallecompra', [])
+            compra=request.POST.get('numcompra')
+            idservicio=request.POST.get('id_servicio')
+            precioventa = request.POST.get('precioventa')
+            preciocompra = request.POST.get('preciocompra')
+            cantidad = request.POST.get('cantidad')
+            subtotal = float(preciocompra) * int(cantidad)
+            
+            objservicio=Producto.objects.get(pk=idservicio)
+            servicio = objservicio.nombre
+            id=idservicio
+            item_detalle_compra={
+                            "compra":compra,
+                            "idservicio":id,
+                            "servicio":servicio,
+                            "precioventa":precioventa,
+                            "preciocompra":preciocompra,
+                            "cantidad":cantidad,
+                            "subtotal":subtotal,
+                        }
+            lstdetallecompra.append(item_detalle_compra)
+                # Guardar el diccionario en la sesión
+            request.session['lstdetallecompra'] = lstdetallecompra
+        except Exception as error:
+            response_data['flag'] = False
+            response_data['msg'] = f'No se Registro el Producto Correctamente {error}'
+        else:
+            response_data['flag'] = True
+            response_data['msg'] = 'Se Registro con exito el Producto'  
+        return JsonResponse(response_data)   
+    return render(request,template_name) 
+
+
+#GUARDA LA CABECERA Y EL DETALLE DE LA COMPRA
+@login_required
+def Compra_crear(request):
+    response_data = {}
+    #request.session['lstdetallecompra'] = [] #Esta linea de codigo limpia la sesion de memoria
+    context={}
+    template_name="compras.html"
+    proveedor=Proveedor.objects.filter(state=True)
+    lstdetallecompra = request.session.get('lstdetallecompra', {})
+    #Generando el codigo de compra
+    ultima_compra = Compras.objects.order_by('-numero_compra').first()
+    if ultima_compra:
+        max_valor = ultima_compra.numero_compra
+    else:
+        max_valor = '10000000'
+    # Incrementar el valor como un número entero
+    nuevo_valor = str(int(max_valor) + 1) 
+    if request.method == 'GET':
+        context = {
+            "Proveedores":proveedor,
+            "detallecompra":lstdetallecompra,
+            "idcompra":nuevo_valor
+        }
+        
+    else:    
+        if request.POST.get('action') == 'grabar_compra': 
+                try:
+                    
+                    obj_user=User.objects.get(pk=1)
+                    persona_creo_cotiza=obj_user    
+                    codempresa=int(request.session.get('idempresa'))
+                    obj_empresa=Empresa.objects.get(pk=codempresa)
+                    valorprov=request.POST.get('cmbproveedores')
+                    proveedor=Proveedor.objects.get(pk=valorprov)
+                    compra_cabecera=Compras.objects.create(
+                        numero_compra=nuevo_valor,
+                        proveedor=proveedor,
+                        fecha=request.POST.get('fecha'),
+                        detalle=request.POST.get('comentario'),
+                        persona_creo_venta=persona_creo_cotiza,
+                        total=request.POST.get('totalGran'),
+                        con_que_empresa=obj_empresa
+                    )
+                    #Guardando el detalle de la Compra
+                    for item in lstdetallecompra:
+                        objproducto = Producto.objects.get(pk=item["idservicio"])
+                        DetalleCompras.objects.create(
+                            compra=compra_cabecera,
+                            producto=objproducto,
+                            precio_compra=item["preciocompra"],
+                            precio_venta=item["precioventa"],
+                            cantidad=item["cantidad"],
+                            subtotal=item["subtotal"],
+                        )
+                          # Aumenta la cantidad de stock producto
+                        objproducto.stock += int(item["cantidad"])
+                        objproducto.save()  # Guardar los cambios en la base de datos
+
+                        if 'lstdetallecompra' in request.session:
+                            del request.session['lstdetallecompra']
+                            
+                    
+                except Exception as error:
+                    response_data['flag'] = False
+                    response_data['msg'] = f'No se Registro La Compra Correctamente {error}'        
+                else:  
+                    response_data['flag'] = True  
+                    response_data['msg'] = 'Se Registro con exito La Compra' 
+        return JsonResponse(response_data) 
+    return render(request, template_name, context)
 
 
 

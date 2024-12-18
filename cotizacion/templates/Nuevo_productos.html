@@ -11,12 +11,12 @@
       <nav aria-label="breadcrumb" role="navigation">
         <ol class="breadcrumb adminx-page-breadcrumb">
           <li class="breadcrumb-item"><a href="{% url 'index_home' %}">Dashboard</a></li>
-          <li class="breadcrumb-item"><a href="{% url 'listado_productos' %}">Servicios</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'listado_productos' %}">Productos</a></li>
         </ol>
       </nav>
 
       <div class="pb-3">          
-        <h1>Agregar Servicios</h1>
+        <h1>Agregar Productos</h1>
       </div>
 
       <div class="row">
@@ -25,7 +25,7 @@
             <div
               class="card-header d-flex justify-content-between align-items-center"
             >
-              <div class="card-header-title">Ingrese el Nuevo Servicio</div>
+              <div class="card-header-title">Ingrese el Nuevo Producto</div>
 
               <nav class="card-header-actions">
                 <a
@@ -62,7 +62,7 @@
             <div class="card-body collapse show" id="card1">       
                <form class="forms-sample" id="formproducto" method="POST">{% csrf_token %} 
                 <div class="form-group">
-                  <label class="form-label" for="txtnomprod">Nombre Servicio</label>
+                  <label class="form-label" for="txtnomprod">Nombre Producto</label>
                   <input class="form-control mb-2" type="text"  id="txtnomprod"  required>
                 </div>
 
@@ -102,10 +102,10 @@
                 <input class="form-control mb-2" type="text"  id="txtcostofrecido"   required>
               </div>
 
-              <div class="form-group">
+              {% comment %} <div class="form-group">
                 <label class="form-label" for="txtganancia">Ganancia</label>
                 <input class="form-control mb-2" type="text"  id="txtganancia"  required>
-              </div>
+              </div> {% endcomment %}
 
               <div class="form-group">
                 <label class="form-label" for="cmbumedida">Unidad Medida</label>
@@ -150,7 +150,7 @@
       formData.append('txtdescripcion',$('#txtdescripcion').val())
       formData.append('txtcostoreal',$('#txtcostoreal').val())
       formData.append('txtcostofrecido',$('#txtcostofrecido').val())
-      formData.append('txtganancia',$('#txtganancia').val())
+     /* formData.append('txtganancia',$('#txtganancia').val())*/
       formData.append('cmbumedida', $('#cmbumedida').val())
       formData.append('cmbcategoria',$('#cmbcategoria').val())
       formData.append('cmbproveedores',$('#cmbproveedores').val())

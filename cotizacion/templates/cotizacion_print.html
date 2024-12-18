@@ -138,7 +138,6 @@
             <th style="width: 25%;">Detalle</th>
             <th style="width: 10%;">Precio</th>
             <th style="width: 10%;">Cant.</th>
-            <th style="width: 10%;">Fechas</th>
             <th style="width: 10%;">Subtotal</th>
           </tr>
         </thead>
@@ -150,7 +149,6 @@
             <td>{{item.detalle}}</td>
             <td>{{item.precio|floatformat:"2"}}</td>
             <td>{{item.cantidad}}</td>
-            <td>{{item.fechas}}</td>
             <td>{{item.costo|floatformat:"2"}}</td>
           </tr>
           {% endfor %}
@@ -169,19 +167,11 @@
         <td>{{cabecera.total}}</td>
       </tr>
       <tr>
-        <td>Fee (12%)</td>
-        <td>{{cabecera.fee}}</td>
-      </tr>
-      <tr>
-        <td>Total</td>
-        <td>{{total}}</td>
-      </tr>
-      <tr>
         <td>IGV</td>
         <td>{{igv}}</td>
       </tr>
       <tr>
-        <td>Gran Total Venta</td>
+        <td>Total Venta</td>
         <td>{{total_ven}}</td>
       </tr>
     </table>

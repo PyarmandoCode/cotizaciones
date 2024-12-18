@@ -90,10 +90,10 @@ WSGI_APPLICATION = 'app_cotizaciones.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'dbdns',
-        'USER':'dbdns_user',
-        'PASSWORD':'3w7bAFzX6n30xIIjORe5K0MUzJIFHS6C',
-        'HOST':'dpg-ct918shu0jms73ckbaug-a.oregon-postgres.render.com',
+        'NAME': 'dnsdatabase',
+        'USER':'dnsdatabase_user',
+        'PASSWORD':'QQf6zjGc0BUtSv8CM1LlgEHoJJnXTCZf',
+        'HOST':'dpg-cth17ijgbbvc73a0ri9g-a.oregon-postgres.render.com',
         'PORT':'5432'
     }
 }

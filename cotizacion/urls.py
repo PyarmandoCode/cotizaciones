@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import index,Productos_listado,Productos_visualizar,DeleteCrudProductos,UpdateCrudProductos,Productos_form,CreateCrudProductos,Categorias_listado,Categoria_form,CreateCrudCategorias,UpdateCrudCategorias,Categoria_visualizar,DeleteCrudCategorias,Proveedores_listado,Proveedor_form,CreateCrudProveedores,DeleteCrudProveedores,Proveedor_visualizar,UpdateCrudProveedor,Cotizacion_crear,AutocompleteServicios,Clientes_listado,Cliente_form,CreateCrudClientes,DeleteCrudClientes,Cliente_visualizar,UpdateCrudCliente,AutocompleteClientes,Grabar_item_cotizacion,Listar_cotizaciones,Cancelar_cotizacion,Cotizacion_visualizar,Eliminar_detalle_cotizacion,modificar_item_cotizacion,EliminarItemCotizacionBD,Actualizar_totales_bd,EliminarCotizacionBD,obtener_la_ultima_cotizacion,visualizar_cotizacion,Login,Logoutapp
+from .views import index,Productos_listado,Productos_visualizar,DeleteCrudProductos,UpdateCrudProductos,Productos_form,CreateCrudProductos,Categorias_listado,Categoria_form,CreateCrudCategorias,UpdateCrudCategorias,Categoria_visualizar,DeleteCrudCategorias,Proveedores_listado,Proveedor_form,CreateCrudProveedores,DeleteCrudProveedores,Proveedor_visualizar,UpdateCrudProveedor,Cotizacion_crear,AutocompleteServicios,Clientes_listado,Cliente_form,CreateCrudClientes,DeleteCrudClientes,Cliente_visualizar,UpdateCrudCliente,AutocompleteClientes,Grabar_item_cotizacion,Listar_cotizaciones,Cancelar_cotizacion,Cotizacion_visualizar,Eliminar_detalle_cotizacion,modificar_item_cotizacion,EliminarItemCotizacionBD,Actualizar_totales_bd,EliminarCotizacionBD,obtener_la_ultima_cotizacion,visualizar_cotizacion,Login,Logoutapp,Listar_ventas,Cotizacion_a_Ventas,Visualizar_Venta,Listar_compras,Compra_crear,Grabar_item_compra
 urlpatterns = [
     path('index_home/', index,name="index_home"),
     path('listado_productos/', Productos_listado,name="listado_productos"),
@@ -42,7 +42,13 @@ urlpatterns = [
     path('visualizar_cotizacion_imprimir/<int:numcot>', visualizar_cotizacion,name="visualizar_cotizacion_imprimir"),
     path('', Login,name="login"),
     path('logoutapp', Logoutapp,name="logoutapp"),
-    path('accounts/login/', Login, name='login')
+    path('accounts/login/', Login, name='login'),
+    path('listar_ventas/', Listar_ventas, name='listar_ventas'),
+    path('Cotizacion_a_Ventas/<int:numcot>/', Cotizacion_a_Ventas, name='Cotizacion_a_Ventas'),
+    path('Visualizar_Venta/<int:nroventa>/', Visualizar_Venta, name='Visualizar_Venta'),
+    path('listar_compras/', Listar_compras, name='listar_compras'),
+    path('Compra_crear/', Compra_crear, name='Compra_crear'),
+    path('Grabar_item_compra/', Grabar_item_compra, name='Grabar_item_compra'),
   
    
 ]

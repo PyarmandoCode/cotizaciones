@@ -113,10 +113,10 @@
                 <input class="form-control mb-2" type="text"  id="txtcostofrecido"  value="{{productos.costo_ofrecido}}" required>
               </div>
 
-              <div class="form-group">
+              {% comment %} <div class="form-group">
                 <label class="form-label" for="txtganancia">Ganancia</label>
                 <input class="form-control mb-2" type="text"  id="txtganancia"  value="{{productos.ganancia}}" required>
-              </div>
+              </div> {% endcomment %}
 
                
 
@@ -151,7 +151,7 @@
       formData.append('txtdescripcion',$('#txtdescripcion').val())
       formData.append('txtcostoreal',$('#txtcostoreal').val())
       formData.append('txtcostofrecido',$('#txtcostofrecido').val())
-      formData.append('txtganancia',$('#txtganancia').val())
+     /* formData.append('txtganancia',$('#txtganancia').val()) */
       formData.append('cmbumedida', $('#cmbumedida').val())
       formData.append('cmbcategoria',$('#cmbcategoria').val())
       formData.append('cmbproveedores',$('#cmbproveedores').val())

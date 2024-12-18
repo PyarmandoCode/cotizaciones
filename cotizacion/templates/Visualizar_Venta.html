@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+{% block title %}Pagina Principal{% endblock %}
+{% block content %}
+{% load custom_filters %}
+
+
+
+<div class="adminx-content">
+  <div class="adminx-main-content">
+    <div class="container-fluid">
+      
+      <!-- BreadCrumb -->
+      <nav aria-label="breadcrumb" role="navigation">
+        <ol class="breadcrumb adminx-page-breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'index_home' %}">Dashboard</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'listar_ventas' %}">Ventas</a></li>
+        </ol>
+      </nav>
+        <div class="pb-33">
+          <h1 >Ventas</h1>
+         
+        </div>
+
+        <div class="card mb-grid">
+          <div class="card-header">
+            <div class="card-header-title">Datos de la Venta</div>
+          </div>
+          <div class="card-body">
+          <form id="frmcabeceraventa" method="POST"  enctype="multipart/form-data">{% csrf_token %}  
+            <div class="form-row">  
+              <div class="col-md-3 mb-3">
+                <label class="form-label"  id="lblnumcotizacion" class="oculto" >NroCotizacion</label>
+                <input type="text" class="form-control" id="numcotizacion" 
+               
+                value={{cabecera.nrocotizacion}}
+                disabled>
+              </div>
+
+              <div class="col-md-3 mb-3">
+                <label class="form-label"  id="lblnumdocumento" class="oculto" >NroDocumento</label>
+                <input type="text" class="form-control" id="numdocumento" 
+                value="{{cabecera.nrodocumento}}" disabled
+                >
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="cmbcategoria">Tipo de Venta</label>
+                <select class="form-control" id="cmbtipoventa" disabled>
+                    <option  value="" selected="selected">{{tipoventaseleccionada}}</option>
+                   {% for item in tipoventa %}
+                     <option value="{{ item.id }}">{{ item.tipo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label class="form-label"  id="lbldescuento" >Descuento S/.</label>
+                <input type="text" class="form-control" id="descuento" 
+                value={{cabecera.total_descuento}}
+                disabled >
+              </div>
+
+            </div>  
+              <div class="form-row">
+                  <div class="col-md-3 mb-3">
+                    <label class="form-label"  id="lblcliente" class="oculto" >Cliente</label>
+                    <input type="text" class="form-control" id="cliente" autocomplete="off" value="{{cabecera.cliente}}" disabled >
+                  </div>
+
+                  <input type="hidden" id="idcliente">
+  
+                  <div class="col-md-3 mb-3">
+                    <label class="form-label" for="ruc"  id="lblruc" class="oculto" >Ruc</label>
+                    <input type="text" class="form-control" id="ruc" class="oculto" placeholder="Ruc" required value="{{cabecera.cliente.ruc}}" disabled>
+                  </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label"  id="lblfecha" class="oculto" >Fecha</label>
+                    <input type="text" class="form-control" id="fecha" placeholder="Fecha" value="{{ cabecera.fecha_venta|date:'d/m/Y' }}" data-input data-format="d/m/Y" disabled>
+                </div>
+              </div>
+
+              <div class="form-row">  
+                <div class="col-md-6 mb-3">
+                  <label for="comentario" class="form-label">Comentario:</label>
+                  <br>
+                  <textarea id="comentario" name="comentario" rows="5"  maxlength="280" disabled>{{cabecera.comentario}} </textarea>
+                </div> 
+            </div> 
+              </div>
+          </div>
+        </div>
+
+   
+        <div class="row">
+          <div class="col">
+            <div class="card mb-grid">
+              <div class="table-responsive-md">
+                <table  class="table table-actions table-striped table-hover mb-0"  id=datatable-ventas data-table>
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Productos</th>
+                      <th scope="col">Detalle</th>
+                      <th scope="col">Precio Venta</th>
+                      <th scope="col">Ctd</th>
+                      <th scope="col">Costo Venta Soles</th>
+                    </tr>
+                  </thead>
+                  <tbody >
+                    {% for item in detalle %}  
+                        <tr id="item-{{forloop.counter}}">
+                        <td> {{ forloop.counter }} </td> 
+                        <td>{{item.producto}}</td>
+                        <td>{{item.detalle}}</td>
+                        <td>{{item.producto.costo_ofrecido|floatformat:"2"|replace_comma}}</td>
+                        <td>{{item.cantidad}}</td>
+                        <td>{{ item.producto.costo_ofrecido|multiplicar:item.cantidad }}</td>
+                        </tr>
+                  {% endfor %}   
+                  </tbody>
+                  <tr>
+                    <td colspan="6" style="height: 20px; border: none;"></td>
+                  </tr>
+                  <thead class="header-totales" >
+                    <tr>
+                        <th colspan="2">Descripción</th>
+                        <th>Costo Total Soles</th>
+                    </tr>
+                </thead>
+                
+                  <tfoot class="footer-totales">
+                    <tr>
+                        <th colspan="2" class="subtotal">Sub-Total:</th>
+                        <th id="totalSubt" class="subtotal"></th>
+                    </tr>
+                   
+                    <tr>
+                        <th colspan="2" class="igv">IGV:(0.18)</th>
+                        <th id="totalIgv" class="igv"></th>
+                    </tr>
+
+                  
+                    <tr>
+                        <th colspan="2" class="grantotal">Total Venta:</th>
+                        <th id="totalGran" class="grantotal"></th>
+                    </tr>
+                   
+                </tfoot>
+                </table>
+        
+           <div class="pb-3 button-row">
+                <div class="btn-group" role="group" aria-label="Botones de acción">
+                    <!-- Primer botón -->
+                   
+                        <button type="submit"  class="btn btn-icon btn-info">Imprimir</button>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</form>
+</div> 
+
+{% block javascripts %}
+<script>
+
+$(document).ready(function() {
+  var table = $('[data-table]').DataTable({
+  language: {
+              "decimal": "",
+              "emptyTable": "No hay información",
+              "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+              "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+              "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+              "infoPostFix": "",
+              "thousands": ",",
+              "lengthMenu": "Mostrar _MENU_ Entradas",
+              "loadingRecords": "Cargando...",
+              "processing": "Procesando...",
+              "search": "Buscar:",
+              "zeroRecords": "Sin resultados encontrados",
+              "paginate": {
+                  "first": "Primero",
+                  "last": "Ultimo",
+                  "next": "Siguiente",
+                  "previous": "Anterior"
+              }
+            },
+            bLengthChange: true,
+            "iDisplayLength": 10,
+            bInfo: false,
+            responsive: true,
+            "bAutoWidth": false,
+            "columns": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+            ]
+        });
+  });
+</script>
+  
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      flatpickr("#fecha", {
+          dateFormat: "d/m/Y",
+          locale: "es",
+      });
+  });
+  
+</script>
+
+  <script>
+    $(document).ready(function() {
+     flatpickr("#fecha", {
+      dateFormat: "d/m/Y",
+      locale: "es",
+      onClose: function(selectedDates, dateStr, instance) {
+        if (selectedDates.length > 0) {
+          document.getElementById('capacidad').focus();
+        }
+      }
+    });
+  });
+  </script>
+
+  <script>
+    function focusFlatpickr(event, flatpickrId,nextInputId) {
+      if (event.key === "Enter") {
+        event.preventDefault(); // Evitar comportamiento predeterminado del "Enter"
+        const flatpickrInput = document.getElementById(flatpickrId);
+        if (flatpickrInput._flatpickr) {
+          flatpickrInput._flatpickr.open(); // Abrir el calendario Flatpickr
+        }
+      }
+    }
+  </script>  
+
+  <script>
+    $(document).ready(function() {
+      // Obtener la instancia del DataTable
+      var miTabla = $('#datatable-ventas').DataTable();
+
+       // Verificar si la tabla tiene datos
+      if (miTabla.data().count() === 0) {
+        $('#datatable-ventas thead').hide();
+        $('#datatable-ventas tfoot').hide();
+        $('#btngrabar').hide(); 
+        $('#btncancelar').hide(); 
+      } else {
+        $('#btngrabar').show(); 
+        $('#btncancelar').show(); 
+      }
+      
+      var datasubtotalcompra = miTabla.column(5).data();
+      // Verificar si los datos son válidos y si hay al menos un elemento en la columna
+      if (datasubtotalcompra && datasubtotalcompra.length > 0) {
+          // Convertir los datos de strings a números y calcular el subtotal
+          var subtotal = 0;
+          for (var i = 0; i < datasubtotalcompra.length; i++) {
+              // Verificar si el valor es un string numérico antes de sumarlo
+              var valorNumerico = parseFloat(datasubtotalcompra[i].replace(/[$,]/g, '').replace(',', '.'));
+              if (!isNaN(valorNumerico)) {
+                  subtotal += valorNumerico;
+              }
+             
+          }
+          subtotal = subtotal.toFixed(2);
+    
+          var total = (parseFloat(subtotal)).toFixed(2);
+          // Calcular el IGV (18% del total)
+          var igv = (total * 0.18).toFixed(2);
+          // Calcular el gran total (total + igv)
+          var grantot = (parseFloat(total) + parseFloat(igv)).toFixed(2);
+          // Mostrar los resultados en los elementos correspondientes
+          $('#totalSubt').text(subtotal);        
+          $('#totalIgv').text(igv);
+          $('#totalGran').text(grantot);
+       
+      } else {
+          // Manejar el caso donde no hay datos disponibles
+          console.log("No hay datos disponibles para calcular el total.");
+      }
+   
+  });
+  
+  </script>  
+{% endblock javascripts %}
+{% endblock  %}
+
+
+

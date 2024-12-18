@@ -116,7 +116,7 @@
                     <tr>
                     
                       <th scope="col">#</th>
-                      <th scope="col">Servicios</th>
+                      <th scope="col">Productos</th>
                       <th scope="col">Detalle del Entregable</th>
                       <th scope="col">Precio Compra</th>
                       <th scope="col">Precio Venta</th>
@@ -165,6 +165,9 @@
                   {% endfor %}   
                    
                   </tbody>
+                  <tr>
+                    <td colspan="6" style="height: 20px; border: none;"></td>
+                  </tr>
                   <thead class="header-totales">
                     <tr>
                         <th colspan="2">Descripción</th>
@@ -178,30 +181,30 @@
                         <th colspan="2" class="subtotal">Sub-Total:</th>
                         <th id="totalSubt" class="subtotal"></th>
                     </tr>
-                    <tr>
+                    {% comment %} <tr>
                         <th colspan="2" class="fee">Fee(12%):</th>
                         <th id="totalFee" class="fee"></th>
-                    </tr>
-                    <tr>
+                    </tr> {% endcomment %}
+                    {% comment %} <tr>
                         <th colspan="2" class="total">Total:</th>
                         <th id="totalTotal" class="total"></th>
-                    </tr>
+                    </tr> {% endcomment %}
                     <tr>
-                        <th colspan="2" class="igv">IGV:</th>
+                        <th colspan="2" class="igv">IGV:(0.18)</th>
                         <th id="totalIgv" class="igv"></th>
                     </tr>
                     <tr>
-                        <th colspan="2" class="grantotal">Gran Total Venta:</th>
+                        <th colspan="2" class="grantotal">Total Venta:</th>
                         <th id="totalGran" class="grantotal"></th>
                     </tr>
-                    <tr>
+                    {% comment %} <tr>
                       <th colspan="2" class="totalcompra">Total Compra:</th>
                       <th id="totalcompra" class="totalcompra"></th>
-                  </tr>
-                  <tr>
+                  </tr> {% endcomment %}
+                  {% comment %} <tr>
                     <th colspan="2" class="ganancia">Ganancia:</th>
                     <th id="ganancia" class="ganancia"></th>
-                </tr>
+                </tr> {% endcomment %}
                 </tfoot>
                 </table>
                  
@@ -256,7 +259,7 @@
             <form id="frmitemcotizacion" method="POST"  enctype="multipart/form-data">{% csrf_token %}
               <div class="mb-3">
               
-                <label for="servicio" class="col-form-label">Servicios:</label>
+                <label for="servicio" class="col-form-label">Productos:</label>
                 <input type="text" class="form-control" id="item_servicio" required="required" autocomplete="off" >
                 <ul id="suggestions-list"></ul>
                 <input type="hidden" class="form-control" id="id_servicio" >
@@ -264,18 +267,21 @@
                 <label for="concepto" class="col-form-label">Detalle de Entregable:</label>
                 <br>
 
-                <textarea id="detalle" name="detalle" rows="5" cols="48" maxlength="250" required ></textarea>
+                <textarea id="detalle" name="detalle" rows="5" cols="48" maxlength="250" ></textarea>
                 <br>
 
                 <label for="preciocompra" class="col-form-label">Precio Costo:</label>
-                <input type="number" class="form-control" id="preciocompra" required="required" oninput="hallar_total()" step="any">
+                <input type="number" class="form-control" id="preciocompra"  disabled >
 
                 <label for="precio" class="col-form-label">Precio Venta:</label>
-                <input type="number" class="form-control" id="precio" required="required" oninput="hallar_total()" step="any">
+                <input type="number" class="form-control" id="precio" disabled  >
+
+                <label for="stock" class="col-form-label">Stock:</label>
+                <input type="number" class="form-control" id="stock" disabled >
 
               
                 <label for="cantidad" class="col-form-label">Cantidad:</label>
-                <input type="number" class="form-control" id="cantidad" required="required" oninput="hallar_total()">
+                <input type="number" class="form-control" id="cantidad" oninput="hallar_total()" >
 
           
               <label for="fechas" hidden class="col-form-label">Fechas:</label>
@@ -381,6 +387,9 @@ $(document).ready(function() {
                         listItem.click(function() {
                           $('#id_servicio').val(item.id);
                           $('#preciocompra').val(item.precio);
+                          $('#precio').val(item.precio_venta);
+                          $('#stock').val(item.stock);
+                          
 
                       });
                         $('#suggestions-list').append(listItem);
@@ -562,23 +571,38 @@ $(document).ready(function() {
     var precio = parseFloat(document.getElementById("precio").value);
     var preciocompra = parseFloat(document.getElementById("preciocompra").value);
     var cantidad = parseFloat(document.getElementById("cantidad").value);
-    //var fechas = parseFloat(document.getElementById("fechas").value);
     var total = document.getElementById("total");
     var costocompra = document.getElementById("costocompra");
-  
-  
+    var stock = parseFloat(document.getElementById("stock").value); // Asegúrate de obtener el valor numérico del stock
+    // Convertir cantidad a número para validación
+    
     // Verificar si todos los campos tienen valores numéricos
-    if (!isNaN(precio) && !isNaN(cantidad)) {
-        var total_var = precio * cantidad ; // Multiplicar precio, cantidad y fechas
-        var total_inte = preciocompra * cantidad ; // Multiplicar precio, cantidad y fechas
-        total.value = total_var.toFixed(2); // Mostrar el total con dos decimales
-        costocompra.value = total_inte.toFixed(2); // Mostrar el total con dos decimales
+    if (!isNaN(precio) && !isNaN(cantidad) && !isNaN(stock)) {
+        if (cantidad > stock) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Stock insuficiente',
+            text: 'La cantidad solicitada supera el stock disponible.',
+            confirmButtonText: 'Aceptar'
+          });
+          total.value = ""; // Limpia el total
+          costocompra.value = ""; // Limpia el costo de compra
+          cantidad.value="";
+          cantidad.focus();
+        } else {
+            var total_var = precio * cantidad; // Multiplicar precio y cantidad
+            var total_inte = preciocompra * cantidad; // Multiplicar preciocompra y cantidad
+            total.value = total_var.toFixed(2); // Mostrar el total con dos decimales
+            costocompra.value = total_inte.toFixed(2); // Mostrar el costo de compra con dos decimales
+        }
     } else {
+        // Mostrar mensaje de error si los valores no son válidos
         total.value = "¡Ingrese números válidos!";
+        costocompra.value = "";
     }
   }
-  
 </script>
+
 
 
 <script>
@@ -1037,7 +1061,6 @@ function grabarDatos() {
       'evento': $('#evento').val(),
       'capacidad': $('#capacidad').val(),
       'lugar': $('#lugar').val(),
-      'totalFee': $('#totalFee').text(),
       'totalSubt': $('#totalSubt').text(),
       'totalcompra': $('#totalcompra').text(),
       'action': 'registrar_cotizacion_cabecera',
@@ -1121,10 +1144,11 @@ function grabarDatos() {
 
     
           // Calcular el fee (12% del subtotal)
-          var fee = (subtotal * 0.12).toFixed(2);
+          //var fee = (subtotal * 0.12).toFixed(2);
           
           // Calcular el total
-          var total = (parseFloat(subtotal) + parseFloat(fee)).toFixed(2);
+          //var total = (parseFloat(subtotal) + parseFloat(fee)).toFixed(2);
+          var total = (parseFloat(subtotal)).toFixed(2);
           
           // Calcular el IGV (18% del total)
           var igv = (total * 0.18).toFixed(2);
@@ -1133,17 +1157,17 @@ function grabarDatos() {
           var grantot = (parseFloat(total) + parseFloat(igv)).toFixed(2);
 
           // Calcular la ganancia
-          var ganancia = (parseFloat(subtotal) - parseFloat(subtotalcompra)).toFixed(2);
+          //var ganancia = (parseFloat(subtotal) - parseFloat(subtotalcompra)).toFixed(2);
          
           
           // Mostrar los resultados en los elementos correspondientes
           $('#totalSubt').text(subtotal);
-          $('#totalFee').text(fee);
-          $('#totalTotal').text(total);
+          //$('#totalFee').text(fee);
+          //$('#totalTotal').text(total);
           $('#totalIgv').text(igv);
           $('#totalGran').text(grantot);
-          $('#totalcompra').text(subtotalcompra);
-          $('#ganancia').text(ganancia);
+          //$('#totalcompra').text(subtotalcompra);
+          //$('#ganancia').text(ganancia);
       } else {
           // Manejar el caso donde no hay datos disponibles
           console.log("No hay datos disponibles para calcular el total.");
@@ -1210,7 +1234,6 @@ function actualizartotalesbd() {
   var campos = {
 
     'numcotizacion': $('#numcotizacion').val(),
-    'totalFee': $('#totalFee').text(),
     'totalSubt': $('#totalSubt').text(),
     'totalcompra': $('#totalcompra').text(),  
     'idcliente': $('#idcliente').val(),
@@ -1259,9 +1282,6 @@ $.each(campos, function(nombreCampo, valorCampo) {
 });
 }
 </script>
-
-
-
 
 
 {% endblock javascripts %}

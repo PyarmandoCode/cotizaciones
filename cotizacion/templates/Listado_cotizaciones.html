@@ -53,7 +53,11 @@
                   <tbody>
                   {% for item in cotizaciones %}  
                     <tr id="item-{{item.id}}" class=>
-                      <td> {{ item.nrocotizacion }} </td>
+                      <td>
+                        <a href="{% url 'Cotizacion_a_Ventas' item.nrocotizacion   %}" class="btn btn-primary btn-sm">
+                          {{ item.nrocotizacion }}
+                        </a>
+                      </td>
                       <td>{{item.tipo_cotizacion}}</td>
                       <td>{{item.cliente}}</td>
                       <td>{{item.fecha_cotizacion|date:"d/m/Y" }}</td>

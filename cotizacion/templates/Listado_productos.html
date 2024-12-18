@@ -13,7 +13,7 @@
         <nav aria-label="breadcrumb" role="navigation">
           <ol class="breadcrumb adminx-page-breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'index_home' %}">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="#">Servicios</a></li>
+            <li class="breadcrumb-item"><a href="#">Productos</a></li>
           </ol>
         </nav>
         
@@ -29,7 +29,7 @@
         </div>
         
         <div class="pb-3">          
-          <h1>Servicios</h1>
+          <h1>Productos</h1>
         </div>
         <div class="row">
           <div class="col">
@@ -124,8 +124,8 @@
                 null,
                 null,
                 null,
-                null,
-                null,
+               
+                
                 { "orderable": false },
               ]
           });
@@ -134,7 +134,7 @@
 function deleteProductos(id) {
       Swal
         .fire({
-            title: "Desea Eliminar el Servicio?",
+            title: "Desea Eliminar el Producto?",
             text: "Con codigo "+id,
             icon: 'error',
             showCancelButton: true,

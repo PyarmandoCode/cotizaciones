@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block title %}Listado de Compras{% endblock %}
+
+
+{% block content %}
+
+  <div class="adminx-content">
+    <div class="adminx-main-content">
+      <div class="container-fluid">
+
+        
+    
+        <nav aria-label="breadcrumb" role="navigation">
+          <ol class="breadcrumb adminx-page-breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'index_home' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="#">Compras</a></li>
+          </ol>
+        </nav>
+        
+        <div class="text-right">
+            <div class="dropdown">
+              <button class="btn btn-lg btn-info mr-2 dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="btn-text">Agregar</span>
+              </button>
+              
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" href="{% url 'Compra_crear' %}" >Compra</a>
+                
+            </div>
+            </div>
+          </div>
+        
+
+        <div class="pb-3">          
+          <h1>Compras</h1>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="card mb-grid">
+              <div class="table-responsive-md">
+                <table class="table table-actions table-striped table-hover mb-0" id=datatable-compras data-table>
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Proveedor</th>
+                      <th scope="col">Fecha</th>
+                      <th scope="col">Comentario</th>
+                      <th scope="col">Total</th>
+                      <th scope="col">Usuario</th>
+                      <th class="center">Opciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for item in compras %}  
+                    <tr id="item-{{item.id}}" class=>
+                      <td>
+                          {{ item.numero_compra }}
+                      </td>
+                      <td>{{item.proveedor}}</td>
+                      <td>{{item.fecha|date:"d/m/Y" }}</td>
+                      <td>{{item.detalle}}</td>
+                      <td>{{item.total}}</td>
+                      <td>{{item.persona_creo_venta}}</td>
+                      <td>
+                        <a href="" class="btn btn-icon btn-sm mr-2">
+                          <i data-feather="eye"></i>
+                        </a>
+                        
+                        <button class="btn btn-icon btn-sm mr-2" onClick="">
+                          <i data-feather="trash-2"></i>
+                        </button>
+                        
+                      </td>
+                    </tr>
+                  {% endfor %}   
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+{% block javascripts %}
+
+<script>
+  $(document).ready(function() {
+    var table = $('[data-table]').DataTable({
+        language: {
+            "decimal": "",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+          },
+        bLengthChange: true,
+        "iDisplayLength": 10,
+        bInfo: false,
+        responsive: true,
+        "bAutoWidth": false,
+        "columns": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            { "orderable": false },
+        ]
+  });
+});
+</script>
+
+{% endblock javascripts %}
+
+{% endblock  %}
