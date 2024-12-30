@@ -62,11 +62,11 @@
                       <td>{{item.total}}</td>
                       <td>{{item.persona_creo_venta}}</td>
                       <td>
-                        <a href="" class="btn btn-icon btn-sm mr-2">
+                        <a href="{% url 'Visualizar_Compra' item.numero_compra %}" class="btn btn-icon btn-sm mr-2">
                           <i data-feather="eye"></i>
                         </a>
                         
-                        <button class="btn btn-icon btn-sm mr-2" onClick="">
+                        <button class="btn btn-icon btn-sm mr-2" onClick="deletecomprabd({{ item.numero_compra }})">
                           <i data-feather="trash-2"></i>
                         </button>
                         
@@ -126,6 +126,44 @@
   });
 });
 </script>
+
+<script>
+  function deletecomprabd(id) {
+      Swal
+        .fire({
+            title: "Desea Eliminar la Compra?",
+            text: "Con codigo "+id,
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar",
+        })
+        .then(resultado => {
+            if (resultado.value) {
+              $.ajax({
+                url: "{% url 'eliminar_compra_bd'  %}",
+                data: {
+                    'id': id
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.deleted) {
+                      $("#datatable-compras #item-" + id).remove();
+                      }
+                      
+                    }
+                  });
+                  window.location.href = '/listar_compras/';
+                  
+            } else {
+                console.log("*NO se elimino la Compra*");
+              }   
+            })
+        }      
+      
+</script>  
+
+
 
 {% endblock javascripts %}
 

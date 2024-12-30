@@ -895,17 +895,6 @@ def Actualizar_totales_bd(request):
         response_data = {'flag': False, 'msg': 'Solicitud no válida'}
     return JsonResponse(response_data)
 
-# @login_required
-# def obtener_la_ultima_cotizacion(request):
-#     try:
-#         # Utiliza aggregate para obtener el valor máximo del campo Char
-#         valor_mas_alto = Cotizacion.objects.aggregate(max_valor=Max('nrocotizacion'))
-#         max_valor = valor_mas_alto['max_valor']
-#         print(f"el maximo valor {max_valor}")
-#         #10000NaN
-#     except Cotizacion.DoesNotExist:
-#         max_valor = '10000001'    
-#     return JsonResponse({'max_valor': max_valor})
 
 def obtener_la_ultima_cotizacion(request):
     try:
@@ -1070,37 +1059,60 @@ def Listar_compras(request):
 def Grabar_item_compra(request):
     response_data = {}
     template_name="compras.html"
-    if request.POST.get('action') =='registrar_compras':
-        try:
-            lstdetallecompra = request.session.get('lstdetallecompra', [])
-            compra=request.POST.get('numcompra')
-            idservicio=request.POST.get('id_servicio')
-            precioventa = request.POST.get('precioventa')
-            preciocompra = request.POST.get('preciocompra')
-            cantidad = request.POST.get('cantidad')
-            subtotal = float(preciocompra) * int(cantidad)
+    lstdetallecompra = request.session.get('lstdetallecompra', [])
+    compra=request.POST.get('numcompra')
+    idservicio=request.POST.get('id_servicio')
+    precioventa = request.POST.get('precioventa')
+    preciocompra = request.POST.get('preciocompra')
+    cantidad = request.POST.get('cantidad')
+    subtotal = float(preciocompra) * int(cantidad)
+    
+    try:
+        if request.POST.get('action') =='registrar_compras':
+               
+                objservicio=Producto.objects.get(pk=idservicio)
+                servicio = objservicio.nombre
+                id=idservicio
+                item_detalle_compra={
+                                "iddetalle":int(incrementar_detalle_compras(request)),
+                                "compra":compra,
+                                "idservicio":id,
+                                "servicio":servicio,
+                                "precioventa":precioventa,
+                                "preciocompra":preciocompra,
+                                "cantidad":cantidad,
+                                "subtotal":subtotal,
+                            }
+                lstdetallecompra.append(item_detalle_compra)
+                    # Guardar el diccionario en la sesión
+                request.session['lstdetallecompra'] = lstdetallecompra
+                
             
-            objservicio=Producto.objects.get(pk=idservicio)
-            servicio = objservicio.nombre
-            id=idservicio
-            item_detalle_compra={
-                            "compra":compra,
-                            "idservicio":id,
-                            "servicio":servicio,
-                            "precioventa":precioventa,
-                            "preciocompra":preciocompra,
-                            "cantidad":cantidad,
-                            "subtotal":subtotal,
-                        }
-            lstdetallecompra.append(item_detalle_compra)
-                # Guardar el diccionario en la sesión
-            request.session['lstdetallecompra'] = lstdetallecompra
-        except Exception as error:
-            response_data['flag'] = False
-            response_data['msg'] = f'No se Registro el Producto Correctamente {error}'
         else:
-            response_data['flag'] = True
-            response_data['msg'] = 'Se Registro con exito el Producto'  
+                
+                iddetalle = request.POST.get('iddetalle')
+                for indice in lstdetallecompra:
+                    if int(iddetalle)==int(indice["iddetalle"]):
+                        if len(idservicio)!=0:
+                            objservicio=Producto.objects.get(pk=idservicio)
+                            servicio = objservicio.nombre
+                            id=idservicio
+                            lstdetallecompra[int(iddetalle)-1]["idservicio"]=idservicio
+                            lstdetallecompra[int(iddetalle)-1]["servicio"]=servicio
+                        else:
+                            
+                            lstdetallecompra[int(iddetalle)-1]["precioventa"]=precioventa
+                            lstdetallecompra[int(iddetalle)-1]["preciocompra"]=preciocompra
+                            lstdetallecompra[int(iddetalle)-1]["cantidad"]=cantidad
+                            lstdetallecompra[int(iddetalle)-1]["subtotal"]=subtotal
+                            request.session['lstdetallecompra'] = lstdetallecompra
+                            break
+    except Exception as error:
+        response_data['flag'] = False
+        response_data['msg'] = f'No se Registro el Producto Correctamente {error}'
+    else:
+        response_data['flag'] = True
+        response_data['msg'] = 'Se Registro con exito el Producto'  
         return JsonResponse(response_data)   
     return render(request,template_name) 
 
@@ -1108,6 +1120,7 @@ def Grabar_item_compra(request):
 #GUARDA LA CABECERA Y EL DETALLE DE LA COMPRA
 @login_required
 def Compra_crear(request):
+    request.session['opcion'] = 'create'
     response_data = {}
     #request.session['lstdetallecompra'] = [] #Esta linea de codigo limpia la sesion de memoria
     context={}
@@ -1138,9 +1151,11 @@ def Compra_crear(request):
                     codempresa=int(request.session.get('idempresa'))
                     obj_empresa=Empresa.objects.get(pk=codempresa)
                     valorprov=request.POST.get('cmbproveedores')
+                    numdocumento=request.POST.get('numdocumento')
                     proveedor=Proveedor.objects.get(pk=valorprov)
                     compra_cabecera=Compras.objects.create(
                         numero_compra=nuevo_valor,
+                        numero_documento=numdocumento,
                         proveedor=proveedor,
                         fecha=request.POST.get('fecha'),
                         detalle=request.POST.get('comentario'),
@@ -1177,4 +1192,267 @@ def Compra_crear(request):
     return render(request, template_name, context)
 
 
+@login_required
+def incrementar_detalle_compras(request):
+    # Inicializamos el contador en 0 si es la primera vez que se accede
+    if 'contadorcom' not in request.session:
+        request.session['contadorcom'] = 0
+    # Incrementamos el contador en 1
+    lstdetallecompra = request.session.get('lstdetallecompra', [])    
+    request.session['contadorcom'] =int(len(lstdetallecompra)+1)
+    contador=request.session['contadorcom']
+    return contador
+
+
+class Eliminar_detalle_compra(View):
+    def post(self, request):
+            id1 = request.POST.get('id', None)
+            try:
+                if not id1:
+                    return JsonResponse({'deleted': False, 'error': 'ID no proporcionado.'}, status=400)
+
+                id1 = int(id1)
+                
+
+                if 'lstdetallecompra' in request.session:
+                    lstdetallecompra = request.session['lstdetallecompra']
+
+                    # Verificar si la lista no está vacía
+                    if not lstdetallecompra:
+                        return JsonResponse({'deleted': False, 'error': 'La lista ya está vacía.'}, status=400)
+
+                    # Verificar si el índice es válido
+                    if id1 <= 0 or id1 > len(lstdetallecompra):
+                        return JsonResponse({'deleted': False, 'error': 'Índice fuera de rango.'}, status=400)
+
+                    # Eliminar el elemento
+                    del lstdetallecompra[id1 - 1]
+
+                    # Reasignar índices si aún hay elementos en la lista
+                    if lstdetallecompra:
+                        for index, detalle in enumerate(lstdetallecompra):
+                            detalle['iddetalle'] = index + 1
+
+                    # Actualizar la sesión
+                    request.session['lstdetallecompra'] = lstdetallecompra
+                    
+
+                    return JsonResponse({'deleted': True})
+                else:
+                    return JsonResponse({'deleted': False, 'error': 'Lista no encontrada en la sesión.'}, status=400)
+            except ValueError:
+                return JsonResponse({'deleted': False, 'error': 'ID inválido.'}, status=400)
+            except Exception as e:
+                print("Error:", str(e))
+                return JsonResponse({'deleted': False, 'error': str(e)}, status=500)
+         
+
+@login_required
+def Visualizar_Compra(request,nrocompra):
+    request.session['opcion'] = 'update'
+    context={}
+    template_name="Visualizar_Compra.html"
+    proveedor=Proveedor.objects.filter(state=True)
+    
+    cabeceracompra=Compras.objects.get(numero_compra=nrocompra)
+    lstdetallecompra = DetalleCompras.objects.filter(compra=cabeceracompra)
+    context = {
+        "Proveedores":proveedor,
+        "detalle": lstdetallecompra,
+        "cabecera":cabeceracompra       
+          }  
+    return render(request, template_name, context)
+
+class EliminarItemComprasBD(View):
+    def get(self, request):
+        id1 = request.GET.get('id', None)
+        if not id1:
+            return JsonResponse({'error': 'ID no proporcionado.'}, status=400)
+        try:
+            DetalleCompras.objects.get(id=id1).delete()
+            data = {'deleted': True}
+            return JsonResponse(data)
+        except DetalleCompras.DoesNotExist:
+            return JsonResponse({'error': 'El elemento no existe.'}, status=404)
+
+    def post(self, request):
+        id1 = request.POST.get('id', None)
+        if not id1:
+            return JsonResponse({'error': 'ID no proporcionado.'}, status=400)
+         
+        try:
+            #Elimino el Stock de ese Producto   
+            objdetcom=DetalleCompras.objects.get(id=id1)
+            idproducto=objdetcom.producto.id
+            objproducto = Producto.objects.get(pk=idproducto)   
+            objproducto.stock -= objdetcom.cantidad
+            objproducto.save()
+            #Luego elimino el producto de la BD y me deberia devolver el Stock
+            DetalleCompras.objects.get(id=id1).delete()
+            data = {'deleted': True}
+            return JsonResponse(data)
+        except DetalleCompras.DoesNotExist:
+            return JsonResponse({'error': 'El elemento no existe.'}, status=404)
+        
+
+#GUARDA LOS ITEMS DE LA COMPRA EN LA BD CUANDFO SE ACTUALIZA UNA COMPRA
+@login_required
+def Grabar_item_compraBD(request):
+    response_data = {}
+    if request.method == 'POST':
+        try:
+            compra = request.POST.get('numcompra')
+            iddetalle=request.POST.get('iddetalle')
+            idservicio = request.POST.get('id_servicio', '').strip() or 'DEFAULT_ID_SERVICIO'
+            precioventa = request.POST.get('precioventa')
+            preciocompra = request.POST.get('preciocompra')
+            cantidad = request.POST.get('cantidad')
+
+            if not compra or not idservicio or not precioventa or not preciocompra or not cantidad:
+                raise ValueError("Faltan datos obligatorios.")
+
+            preciocompra = float(preciocompra)
+            cantidad = int(cantidad)
+            subtotal = preciocompra * cantidad
+
+            if request.POST.get('action') == 'registrar_comprasBD':
+                objproducto = Producto.objects.get(pk=idservicio)
+                objcompra = Compras.objects.get(numero_compra=compra)
+                
+                DetalleCompras.objects.create(
+                    compra=objcompra,
+                    producto=objproducto,
+                    precio_compra=preciocompra,
+                    precio_venta=precioventa,
+                    cantidad=cantidad,
+                    subtotal=subtotal
+                )
+                # Aumentar el stock del producto
+                objproducto.stock += cantidad
+                objproducto.save()
+
+                response_data['flag'] = True
+                response_data['msg'] = 'Se registró con éxito el producto.'
+
+            elif request.POST.get('action') == 'actualizar_comprasBD':
+                objproducto = Producto.objects.get(pk=idservicio)
+                detalle = DetalleCompras.objects.filter(pk=iddetalle).first()
+                if not detalle:
+                    raise Exception("El detalle con el id proporcionado no existe.")
+                
+                # Primera Logica.- Cuando se actualiza un item de compra
+                # Resto lo que se agrego anteriormente y lo grabo
+                cantidad_anterior=detalle.cantidad
+                print(f"este es la cantidad anterior {cantidad_anterior}")
+                objproducto.stock -= cantidad_anterior
+                objproducto.save()
+
+                detalle.precio_compra = preciocompra
+                detalle.precio_venta = precioventa
+                detalle.cantidad = cantidad
+                subtotal = float(preciocompra) * int(cantidad)
+                detalle.subtotal = subtotal
+                detalle.save()  # Guardar cambios
+
+                # Segunda Logica.- Cuando se actualiza un item de compra
+                # Agrego el nuevo valor que se modifico
+                
+                objproducto.stock += cantidad
+                objproducto.save()
+                print(f"este es la cantidad nueva que se va agregar {cantidad}")
+
+                response_data = {'flag': True, 'msg': 'Detalle actualizado correctamente.'}
+                
+
+        except Producto.DoesNotExist:
+            response_data['flag'] = False
+            response_data['msg'] = f'El producto con ID {idservicio} no existe.'
+        except Compras.DoesNotExist:
+            response_data['flag'] = False
+            response_data['msg'] = f'La compra con ID {compra} no existe.'
+        except ValueError as ve:
+            response_data['flag'] = False
+            response_data['msg'] = str(ve)
+        except Exception as error:
+            response_data['flag'] = False
+            response_data['msg'] = f'Error: {error}'
+    else:
+        response_data['flag'] = False
+        response_data['msg'] = 'Método no permitido.'
+
+    return JsonResponse(response_data)
+
+
+@login_required
+def actualizar_cabecera_compraBD(request):
+    response_data = {}
+    if request.method == 'POST':
+        try:
+            valorprov=request.POST.get('cmbproveedores')
+            proveedor=Proveedor.objects.get(pk=valorprov)
+            numcompra=request.POST.get('numcompra')
+            numdocumento=request.POST.get('numdocumento')
+            fecha=request.POST.get('fecha'),
+            detalle=request.POST.get('comentario'),
+            total=request.POST.get('totalGran'),
+            if isinstance(fecha, tuple):  # Si es una tupla
+                fecha = fecha[0]  # Toma el primer elemento
+            if request.POST.get('action') == 'registrar_comprascabeceraBD':
+                compra = Compras.objects.filter(numero_compra=numcompra).first()
+                if not detalle:
+                    raise Exception("El detalle con el id proporcionado no existe.")
+                compra.fecha = fecha
+                compra.proveedor = proveedor
+                if isinstance(detalle, tuple):  # Si es una tupla, desempaquétalo
+                    detalle = detalle[0]
+                compra.detalle = detalle
+                if isinstance(total, tuple):  # Si es una tupla, desempaquétalo
+                    total = total[0]
+                compra.total = float(total)
+                compra.numero_documento=numdocumento
+                compra.save()  # Guardar cambios
+
+                response_data = {'flag': True, 'msg': 'Compra actualizada correctamente.'}
+        except Exception as error:
+            response_data['flag'] = False
+            response_data['msg'] = f'Error: {error}'
+    else:
+        response_data['flag'] = False
+        response_data['msg'] = 'Método no permitido.'
+
+    return JsonResponse(response_data)
+
+class EliminarCompraBD(View):
+    def actualizar_estado_compra(self, numero_compra):
+        """
+        Marca la compra como inactiva y regresa el stock de los productos asociados.
+        """
+        try:
+            with transaction.atomic():
+                # Actualiza el estado de la compra
+                Compras.objects.filter(numero_compra=numero_compra).update(state=False)
+
+                # Actualiza el stock de los productos asociados
+                detalles = DetalleCompras.objects.filter(compra__numero_compra=numero_compra)
+                for detalle in detalles:
+                    producto = detalle.producto
+                    producto.stock -= detalle.cantidad
+                    producto.save()
+        except Exception as e:
+            return str(e)
+        return None
+
+    def post(self, request):
+        numero_compra = request.GET.get('id')
+        if not numero_compra:
+            return JsonResponse({'error': 'El ID de la compra no fue proporcionado.'}, status=400)
+
+        error = self.actualizar_estado_compra(numero_compra)
+        if error:
+            return JsonResponse({'error': f'Ocurrió un error: {error}'}, status=500)
+
+        return JsonResponse({'deleted': True})
+
+    def get(self, request):
+        return self.post(request)  # Delegar lógica al método POST para evitar duplicación
 

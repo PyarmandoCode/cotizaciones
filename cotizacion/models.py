@@ -250,6 +250,7 @@ class DetalleVenta(models.Model):
 
 class Compras(models.Model):
     numero_compra = models.CharField(max_length=50, unique=True)
+    numero_documento = models.CharField(max_length=50,blank=True, null=True)
     fecha = models.DateTimeField()
     proveedor = models.ForeignKey('Proveedor', on_delete=models.CASCADE)
     total = models.DecimalField(max_digits=10, decimal_places=2)

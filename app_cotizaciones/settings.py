@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-k9(g_^%a5f4!i(eusa_dj+i5ygri0au(7erqq*l$-zh)kmex(g'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -90,10 +90,10 @@ WSGI_APPLICATION = 'app_cotizaciones.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'dnsdatabase',
-        'USER':'dnsdatabase_user',
-        'PASSWORD':'QQf6zjGc0BUtSv8CM1LlgEHoJJnXTCZf',
-        'HOST':'dpg-cth17ijgbbvc73a0ri9g-a.oregon-postgres.render.com',
+        'NAME': 'bdsistemadns',
+        'USER':'dnsadminbd',
+        'PASSWORD':'Rioazulq12@',
+        'HOST':'147.93.15.2',
         'PORT':'5432'
     }
 }

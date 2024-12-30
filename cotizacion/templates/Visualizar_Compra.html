@@ -34,42 +34,43 @@
               <div class="col-md-3 mb-3">
                 <label class="form-label"  id="lblnumcotizacion" >NroCompra</label>
                 <input type="text" class="form-control" id="numcompra" 
-                 autocomplete="off" value="{{idcompra}}" disabled
+                 autocomplete="off" value="{{cabecera.numero_compra}}" readonly
                 >
               </div>
 
               <div class="col-md-3 mb-3">
                 <label class="form-label"  id="lblnumdocumento" >NroDocumento</label>
-                <input type="text" class="form-control" id="numdocumento" 
+                <input type="text" class="form-control" id="numdocumento" value="{{cabecera.numero_documento}}""
                  autocomplete="off" value="" 
                 >
               </div>
-
             </div>  
 
               <div class="form-row">
-                  <div class="col-md-3 mb-3">
-                    <label class="form-label" for="cmbproveedores">Proveedor</label>
-                    <select class="form-control" id="cmbproveedores">
-                      <option  value="" selected="selected">---SELECCIONE---</option>
-                        {% for item in Proveedores %}
-                            <option value="{{item.id}}">{{item.nombre}}</option>
-                        {% endfor %}
-                    </select>
-                  </div>
+                <div class="form-group">
+                  <label class="form-label" for="cmbproveedores">Proveedor</label>
+                  <select class="form-control" id="cmbproveedores">
+                    <option value="" selected="selected">Seleccione un proveedor</option>
+                    {% for item in Proveedores %}
+                        <option value="{{ item.id }}" {% if item.id == cabecera.proveedor.id %}selected{% endif %}>
+                            {{ item.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+                </div>
                   
                   <input type="hidden" id="idproveedor">
 
                   <div class="col-md-3 mb-3" id="cntfecha" >
                     <label class="form-label"  id="lblfecha" class="oculto" >Fecha</label>
-                    <input type="text" class="form-control" id="fecha" placeholder="Fecha" data-input data-format="d/m/Y">
+                    <input type="text" class="form-control" id="fecha" placeholder="Fecha"  value="{{cabecera.fecha|date:'d/m/Y'}}">
                   </div>
 
 
                 <div class="col-md-6 mb-3">
-                  <label for="comentario" class="form-label">Comentario</label>
+                  <label for="comentario" class="form-label">Comentario:</label>
                   <br>
-                  <textarea id="comentario" name="comentario" rows="5"  maxlength="280" ></textarea>
+                  <textarea id="comentario" name="comentario" rows="5"  maxlength="280" >{{cabecera.detalle}}</textarea>
                 </div> 
               </div>
           </div>
@@ -101,28 +102,30 @@
                       <th scope="col">SubTotal</th>
                       <th scope="col"></th>
                       <th scope="col">indice</th>
+                      <th scope="col">idservicio</th>
                    
                     </tr>
                   </thead>
                   <tbody>
 
-                    {% for item in detallecompra %}  
+                    {% for item in detalle %}  
                     <tr id="item-{{forloop.counter}}">
                       <td> {{ forloop.counter }} </td> 
-                      <td>{{item.servicio}}</td>
+                      <td>{{item.producto}}</td>
                       <td>{{item.cantidad}}</td>
-                      <td>{{item.preciocompra|floatformat:"2"|replace_comma}}</td>
-                      <td>{{item.precioventa|floatformat:"2"|replace_comma}}</td>
+                      <td>{{item.precio_compra|floatformat:"2"|replace_comma}}</td>
+                      <td>{{item.precio_venta|floatformat:"2"|replace_comma}}</td>
                       <td>{{item.subtotal|floatformat:"2"|replace_comma}}</td>
                       <td>
                         <a href="#" class="btn btn-icon btn-sm mr-2 btndetallemodal">
                           <i data-feather="eye"></i>
                         </a>
-                        <a href="#" class="btn btn-icon btn-sm mr-2 bteliminardetalle" onClick="deleteitemcompras({{ forloop.counter }})" id="bteliminardetalle">
+                        <a href="#" class="btn btn-icon btn-sm mr-2 bteliminardetalle" onClick="deleteitemcompras({{ item.id }})" id="bteliminardetalle">
                           <i data-feather="trash-2"></i>
                         </a>
                       </td>
                       <td> {{ item.id }} </td>
+                      <td> {{ item.producto.id }} </td>
                       
                     </tr>
                   {% endfor %}   
@@ -206,6 +209,7 @@
                 <label for="cantidad" class="col-form-label">Cantidad:</label>
                 <input type="number" class="form-control" id="cantidad"  >
                 <input type="number" class="form-control" id="iddetalle"  >
+                <input type="number" class="form-control" id="idservicio"  >
               </div>
         
         <div class="modal-footer">
@@ -265,13 +269,13 @@
                     null,
                     null,
                     { "visible": false },
+                    { "visible": false },
                    
                   ]
               });
         });
 </script>
       
-
 <script>
     $('.btndetalle').on('click', function() {
       document.getElementById("iddetalle").value = "";
@@ -280,11 +284,10 @@
       document.getElementById("cantidad").value = "";
       document.getElementById("preciocompra").value = "";
       document.getElementById("precioventa").value = "";
+      localStorage.setItem('selectactualizarcomprasbd',"0");
       $('#ModalItemCompras').modal('show');
-      guardarDatosEnLocalStorage();  
-      localStorage.setItem('selectactualizarcompras',"0");
   });
-</script>
+</script> 
 
 
 <script>
@@ -346,12 +349,12 @@
         var selectedItem = $('#suggestions-list .selected');
         var suggestions = $('#suggestions-list li');
         var currentSelected = $('#suggestions-list li.selected');
-        
+        console.log('tecla presionada',e.key);
 
         switch (e.key) {
             case 'ArrowUp': // Flecha arriba
                 selectedIndex = Math.max(0, selectedIndex - 1);
-                
+                console.log('selectedIndex:', selectedIndex);
                 break;
             case 'ArrowDown': // Flecha abajo
                 selectedIndex = Math.min(suggestions.length - 1, selectedIndex + 1);
@@ -413,12 +416,11 @@
     $('#totalGran').text(total.toFixed(2));
 }
 
-
 </script> 
 
 <script>
   $(document).ready(function () {
-    llenarCamposDesdeLocalStorage();
+    
     calcularTotales();
     // Llama a calcularTotales() después de agregar un nuevo producto
     $('.btndetalle').on('click', function () {
@@ -433,104 +435,135 @@
 });
 </script> 
 
+
 <script>
-  // Función para guardar los datos del formulario en el almacenamiento local
-  function guardarDatosEnLocalStorage() {
-    var campos = ["cmbproveedores", "idproveedor", "fecha", "comentario","numdocumento"];
-    campos.forEach(function(campo) {
-      var valor = document.getElementById(campo).value;
-      localStorage.setItem("input" + campo + "Value", valor);
-    });
-  }
+  $('#datatable-compras').on('click', '.btndetallemodal', function() {
+    // Obtener el DataTable
+    var table = $('#datatable-compras').DataTable();
+    // Obtener el índice de la fila actual
+    var rowIndex = table.row($(this).closest('tr')).index();
+    console.log(rowIndex);
+    // Por este campo lo actualizaras para la BD 
+    var iddetalle = table.cell({row: rowIndex, column: 7, visible: true}).data();
+    console.log("iddetalle"+iddetalle)
+    
+    var rowData = table.row(rowIndex).data();
+    // Asignar valores a los elementos del modal
+    document.getElementById("iddetalle").value = iddetalle;
+    document.getElementById("item_servicio").value = rowData[1];
+    document.getElementById("item_servicio").disabled = true;
+    document.getElementById("cantidad").value = rowData[2];
+    document.getElementById("preciocompra").value = rowData[3];
+    document.getElementById("precioventa").value = rowData[4];
+    document.getElementById("idservicio").value = rowData[8];
+
   
-  // Función para llenar los campos del formulario desde el almacenamiento local
-  function llenarCamposDesdeLocalStorage() {
-    var campos = ["cmbproveedores", "idproveedor", "fecha", "comentario","numdocumento"];
-    campos.forEach(function(campo) {
-      var valor = localStorage.getItem("input" + campo + "Value");
-      if (valor !== null) {
-        document.getElementById(campo).value = valor;
-      }
-    });
-  }
-
-  function eliminarDatosDeLocalStorage() {
-    var campos = ["cmbproveedores", "idproveedor", "fecha", "comentario", "numdocumento"];
-    campos.forEach(function(campo) {
-        var clave = "input" + campo + "Value"; // Generar la clave
-        console.log(`Intentando eliminar: ${clave}, Valor: ${localStorage.getItem(clave)}`);
-        if (localStorage.getItem(clave)) {
-            localStorage.removeItem(clave); // Eliminar el dato
-            console.log(`Clave eliminada: ${clave}`);
-        } else {
-            console.warn(`La clave ${clave} no existe en localStorage.`);
-        }
-    });
-    console.log('Claves actuales en localStorage:', Object.keys(localStorage));
-}
-
-
-</script> 
-
-
+    localStorage.setItem('selectactualizarcomprasbd',"1");
+    $('#ModalItemCompras').modal('show');
+   });
+</script>
 
 
 <script>
-  $("#frmitemcompra").submit(function (e) {
-    e.preventDefault();
-    var formData = new FormData();
-    var resultado =  localStorage.getItem('selectactualizarcompras');
-    
-    var campos = {
-        'resultado': resultado,
-        'iddetalle': $('#iddetalle').val(),
-        'numcompra': $('#numcompra').val(),
-        'id_servicio': $('#id_servicio').val(),
-        'preciocompra': $('#preciocompra').val(),
-        'precioventa': $('#precioventa').val(),
-        'cantidad': $('#cantidad').val(),
-        'action': resultado == "1" ? 'actualizar_item_compra' : 'registrar_compras',
-        'csrfmiddlewaretoken': '{{ csrf_token }}'
-    };
-    
-    $.each(campos, function(nombreCampo, valorCampo) {
-        formData.append(nombreCampo, valorCampo);
-    });
-    
-
-    var url = '{% url "Grabar_item_compra" %}';
-
-    $.ajax({
-        type: 'POST',
-        url: url,
-        data: formData,
-        cache: false,
-        processData: false,
-        contentType: false,
-        success: function (json) {
-            if (json.flag) {
-                Swal.fire(
-                    'Felicitaciones',
-                    json.msg,
-                    'success'
-                ).then(() => {
-                     window.location.href = '/Compra_crear/'; 
+    function deleteitemcompras(id) {
+        console.log("este es el id"+id);
+        Swal.fire({
+            title: "¿Desea eliminar el producto?",
+            text: "Con código " + id,
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar",
+        }).then(resultado => {
+            if (resultado.isConfirmed) { // Solo ejecuta la lógica si se confirma
+                $.ajax({
+                    url: "{% url 'ruta_dinamica' %}",
+                    type: "POST", // Asegúrate de usar POST si tu vista lo requiere
+                    data: {
+                        'id': id,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}' // Si estás usando Django CSRF
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.deleted) {
+                            // Elimina el elemento del DataTable
+                            var table = $('#datatable-compras').DataTable();
+                            table.row("#item-" + id).remove().draw(false); // Remover fila y redibujar tabla
+                            Swal.fire("Eliminado", "El producto fue eliminado exitosamente.", "success");
+                            window.location.href = '/Visualizar_Compra/'+{{cabecera.numero_compra}};
+                        } else {
+                            Swal.fire("Error", "No se pudo eliminar el producto.", "error");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error del servidor:", xhr.responseText);
+                        Swal.fire("Error", `No se pudo eliminar el producto. Error: ${xhr.responseText}`, "error");
+                    }
                 });
-            } else {
-                Swal.fire(
-                    'ERROR',
-                    json.msg,
-                    'error'
-                )
+            } else if (resultado.dismiss === Swal.DismissReason.cancel) {
+              window.location.href = '/Visualizar_Compra/'+{{cabecera.numero_compra}};
+                console.log("Cancelado por el usuario, no se elimina el detalle.");
             }
-        },
-        error: function (response) {
-            console.log(response)
-        }      
-    });
-});
+        });
+    }
+  </script>
 
+  <script>
+    $("#frmitemcompra").submit(function (e) {
+      e.preventDefault();
+      var formData = new FormData();
+      var resultado =  localStorage.getItem('selectactualizarcomprasbd');
+      var campos = {
+          'resultado': resultado,
+          'iddetalle': $('#iddetalle').val(),
+          'numcompra': $('#numcompra').val(),
+          'id_servicio': $('#idservicio').val() || $('#id_servicio').val(),
+          'preciocompra': $('#preciocompra').val(),
+          'precioventa': $('#precioventa').val(),
+          'cantidad': $('#cantidad').val(),
+          'action': resultado == "1" ? 'actualizar_comprasBD' : 'registrar_comprasBD',
+          'csrfmiddlewaretoken': '{{ csrf_token }}'
+      };
+      console.log("este es el idservicio"+$('#id_servicio').val());
+      
+      $.each(campos, function(nombreCampo, valorCampo) {
+          formData.append(nombreCampo, valorCampo);
+      });
+      
+      var url = '{% url "Grabar_item_compraBD" %}';
+  
+      $.ajax({
+          type: 'POST',
+          url: url,
+          data: formData,
+          cache: false,
+          processData: false,
+          contentType: false,
+          success: function (json) {
+              if (json.flag) {
+                  Swal.fire(
+                      'Felicitaciones',
+                      json.msg,
+                      'success'
+                  ).then(() => {
+                    window.location.href = '/Visualizar_Compra/'+{{cabecera.numero_compra}}; 
+                  });
+              } else {
+                  Swal.fire(
+                      'ERROR',
+                      json.msg,
+                      'error'
+                  )
+              }
+          },
+          error: function (response) {
+              console.log(response)
+          }      
+      });
+  });
+  
 </script>
+
 
 <script>
   var formData = new FormData();
@@ -543,13 +576,22 @@
       var año = partesFecha[2];
       var fechaFormateada = año + '-' + mes + '-' + dia;
       formData.append('fecha',fechaFormateada)
-      formData.append('numdocumento',$('#numdocumento').val())
+      formData.append('numcompra',$('#numcompra').val())
       formData.append('comentario',$('#comentario').val())
+      formData.append('numdocumento',$('#numdocumento').val())
       formData.append('cmbproveedores',$('#cmbproveedores').val())
       formData.append('totalGran',$('#totalGran').text())
-      formData.append('action','grabar_compra')
+      formData.append('action','registrar_comprascabeceraBD')
       formData.append('csrfmiddlewaretoken', '{{ csrf_token }}')
-      let url = "{% url 'Compra_crear'  %}"; 
+      console.log('Fecha enviada:', fechaFormateada);
+       // Validar que todos los campos estén llenos
+       for (let [key, value] of formData.entries()) {
+        if (!value || value.trim() === "") {
+          alert(`El campo ${key} está vacío.`);
+          return;
+        }
+      }
+      let url = "{% url 'actualizar_cabecera_compraBD'  %}"; 
       $.ajax({
           type: 'POST',
           url: url,
@@ -560,13 +602,12 @@
           enctype: 'multipart/form-data',
           success: function (json) {
               if (json.flag) {
-                  eliminarDatosDeLocalStorage();
                   Swal.fire(
                       'Felicitaciones',
                       json.msg,
                       'success'
                       ).then(() => {
-                        window.location.href = '/listar_compras';  
+                        window.location.href = '/Visualizar_Compra/'+{{cabecera.numero_compra}};   
                         });
               } else {
                   Swal.fire(
@@ -583,78 +624,6 @@
       });
   });
 </script> 
-
-<script>
-  function deleteitemcompras(id) {
-      console.log("este es el id"+id);
-      Swal.fire({
-          title: "¿Desea eliminar el producto?",
-          text: "Con código " + id,
-          icon: 'error',
-          showCancelButton: true,
-          confirmButtonText: "Sí, eliminar",
-          cancelButtonText: "Cancelar",
-      }).then(resultado => {
-          if (resultado.isConfirmed) { // Solo ejecuta la lógica si se confirma
-              $.ajax({
-                  url: "{% url 'ruta_dinamica' %}",
-                  type: "POST", // Asegúrate de usar POST si tu vista lo requiere
-                  data: {
-                      'id': id,
-                      'csrfmiddlewaretoken': '{{ csrf_token }}' // Si estás usando Django CSRF
-                  },
-                  dataType: 'json',
-                  success: function(data) {
-                      if (data.deleted) {
-                          // Elimina el elemento del DataTable
-                          var table = $('#datatable-compras').DataTable();
-                          table.row("#item-" + id).remove().draw(false); // Remover fila y redibujar tabla
-                          Swal.fire("Eliminado", "El producto fue eliminado exitosamente.", "success");
-                      } else {
-                          Swal.fire("Error", "No se pudo eliminar el producto.", "error");
-                      }
-                  },
-                  error: function(xhr, status, error) {
-                      console.error("Error del servidor:", xhr.responseText);
-                      Swal.fire("Error", `No se pudo eliminar el producto. Error: ${xhr.responseText}`, "error");
-                  }
-              });
-          } else if (resultado.dismiss === Swal.DismissReason.cancel) {
-              window.location.href = '/Compra_crear/';
-              console.log("Cancelado por el usuario, no se elimina el detalle.");
-          }
-      });
-  }
-</script>
-
-
-<script>
-  $('#datatable-compras').on('click', '.btndetallemodal', function() {
-    // Obtener el DataTable
-    var table = $('#datatable-compras').DataTable();
-    // Obtener el índice de la fila actual
-    var rowIndex = table.row($(this).closest('tr')).index();
-    console.log(rowIndex);
-    // Por este campo lo actualizaras para la BD 
-    //var iddetalle = table.cell({row: rowIndex, column: 10, visible: true}).data();
-    //console.log("iddetalle"+iddetalle)
-    
-    var rowData = table.row(rowIndex).data();
-    // Asignar valores a los elementos del modal
-    document.getElementById("iddetalle").value = rowData[0];
-    document.getElementById("item_servicio").value = rowData[1];
-    document.getElementById("item_servicio").disabled = true;
-    document.getElementById("cantidad").value = rowData[2];
-    document.getElementById("preciocompra").value = rowData[3];
-    document.getElementById("precioventa").value = rowData[4];
-    
-    localStorage.setItem('selectactualizarcompras',"1");
-    $('#ModalItemCompras').modal('show');
-   });
-</script>
-      
-
-
   
 {% endblock javascripts %}
 {% endblock  %}

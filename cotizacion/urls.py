@@ -1,5 +1,14 @@
 from django.urls import path
-from .views import index,Productos_listado,Productos_visualizar,DeleteCrudProductos,UpdateCrudProductos,Productos_form,CreateCrudProductos,Categorias_listado,Categoria_form,CreateCrudCategorias,UpdateCrudCategorias,Categoria_visualizar,DeleteCrudCategorias,Proveedores_listado,Proveedor_form,CreateCrudProveedores,DeleteCrudProveedores,Proveedor_visualizar,UpdateCrudProveedor,Cotizacion_crear,AutocompleteServicios,Clientes_listado,Cliente_form,CreateCrudClientes,DeleteCrudClientes,Cliente_visualizar,UpdateCrudCliente,AutocompleteClientes,Grabar_item_cotizacion,Listar_cotizaciones,Cancelar_cotizacion,Cotizacion_visualizar,Eliminar_detalle_cotizacion,modificar_item_cotizacion,EliminarItemCotizacionBD,Actualizar_totales_bd,EliminarCotizacionBD,obtener_la_ultima_cotizacion,visualizar_cotizacion,Login,Logoutapp,Listar_ventas,Cotizacion_a_Ventas,Visualizar_Venta,Listar_compras,Compra_crear,Grabar_item_compra
+from .views import index,Productos_listado,Productos_visualizar,DeleteCrudProductos,UpdateCrudProductos,Productos_form,CreateCrudProductos,Categorias_listado,Categoria_form,CreateCrudCategorias,UpdateCrudCategorias,Categoria_visualizar,DeleteCrudCategorias,Proveedores_listado,Proveedor_form,CreateCrudProveedores,DeleteCrudProveedores,Proveedor_visualizar,UpdateCrudProveedor,Cotizacion_crear,AutocompleteServicios,Clientes_listado,Cliente_form,CreateCrudClientes,DeleteCrudClientes,Cliente_visualizar,UpdateCrudCliente,AutocompleteClientes,Grabar_item_cotizacion,Listar_cotizaciones,Cancelar_cotizacion,Cotizacion_visualizar,Eliminar_detalle_cotizacion,modificar_item_cotizacion,EliminarItemCotizacionBD,Actualizar_totales_bd,EliminarCotizacionBD,obtener_la_ultima_cotizacion,visualizar_cotizacion,Login,Logoutapp,Listar_ventas,Cotizacion_a_Ventas,Visualizar_Venta,Listar_compras,Compra_crear,Grabar_item_compra,Eliminar_detalle_compra,Visualizar_Compra,EliminarItemComprasBD,Grabar_item_compraBD,actualizar_cabecera_compraBD,EliminarCompraBD
+
+def seleccionar_vista(request, *args, **kwargs):
+    # Verifica si existe la variable de sesión 'opcion'
+    if request.session.get('opcion') == 'create':
+        return Eliminar_detalle_compra.as_view()(request, *args, **kwargs) 
+    else:
+        return EliminarItemComprasBD.as_view()(request, *args, **kwargs)
+        
+
 urlpatterns = [
     path('index_home/', index,name="index_home"),
     path('listado_productos/', Productos_listado,name="listado_productos"),
@@ -49,6 +58,11 @@ urlpatterns = [
     path('listar_compras/', Listar_compras, name='listar_compras'),
     path('Compra_crear/', Compra_crear, name='Compra_crear'),
     path('Grabar_item_compra/', Grabar_item_compra, name='Grabar_item_compra'),
-  
-   
+    #path('eliminar_detalle_compra', Eliminar_detalle_compra.as_view(),name="eliminar_detalle_compra"),
+    path('Visualizar_Compra/<int:nrocompra>/', Visualizar_Compra, name='Visualizar_Compra'),
+    path('ruta_dinamica/', seleccionar_vista, name='ruta_dinamica'),
+    path('Grabar_item_compraBD/', Grabar_item_compraBD, name='Grabar_item_compraBD'),
+    path('actualizar_cabecera_compraBD/', actualizar_cabecera_compraBD, name='actualizar_cabecera_compraBD'),
+    path('eliminar_compra_bd', EliminarCompraBD.as_view(),name="eliminar_compra_bd"),
+    
 ]
