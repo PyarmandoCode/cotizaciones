@@ -11,6 +11,12 @@
     <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/material_blue.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha512-TZqjD1e2NwGO0/fMj4ZxNSl1VVvNjGO8YwT6Oo4BkcgeMkOrPjHn1GytmWl+/NmF/z8KX89mzBEkpTjQ8oH9nA==" crossorigin="anonymous" />
 
+    <link href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/3.2.0/css/buttons.dataTables.css" />
+    <!-- Asegúrate de incluir la biblioteca Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    
 
 
   </head>
@@ -22,8 +28,7 @@
       {% block content %}
       {% endblock%}
 
-  
-      
+    
         <script src="/static/cotizacion/js/jquery-3.2.1.min.js"></script>
         <script src="/static/cotizacion/js/popper.min.js"></script>
         <script src="/static/cotizacion/js/bootstrap.min.js"></script> 
@@ -34,11 +39,22 @@
         <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
         <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script> 
 
-        
-      
+
+                <!-- DataTables JS -->
+        {% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script> {% endcomment %}
+        <!-- DataTables Buttons JS -->
+        <script src="https://cdn.datatables.net/2.2.0/js/dataTables.js"></script>
+        <script src="https://cdn.datatables.net/2.2.0/js/dataTables.bootstrap5.js"></script>
+        <script src="https://cdn.datatables.net/buttons/3.2.0/js/dataTables.buttons.js"></script>
+        <script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.bootstrap5.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+        <script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.html5.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.print.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/3.2.0/js/buttons.colVis.min.js"></script>
 
       
-     
 
       {% block javascripts %}
       {% endblock javascripts %}

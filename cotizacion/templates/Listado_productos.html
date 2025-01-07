@@ -2,7 +2,25 @@
 {% block title %}Listado de Productos{% endblock %}
 {% block content %}
 {% load custom_filters %}
-{% comment %}  {% endcomment %}
+
+<style>
+  .modal-body {
+    max-height: 60vh; /* Ajusta este valor según lo que necesites */
+    overflow-y: auto; /* Activa el scroll vertical si el contenido es largo */
+  }
+
+  .modal-dialog {
+    max-width: 90%; /* Ajusta el porcentaje para el ancho */
+  }
+  
+  .modal-content {
+    width: 100%; /* Asegura que el contenido ocupe todo el ancho del modal */
+    height: auto; /* Ajusta la altura para que se ajuste al contenido */
+    max-height: 80vh; /* Establece un alto máximo para evitar que sea demasiado grande */
+    overflow-y: auto; /* Permite desplazarse si hay demasiado contenido */
+  }
+</style> 
+
   <!-- Main Content -->
   <div class="adminx-content">
     <div class="adminx-main-content">
@@ -16,21 +34,35 @@
             <li class="breadcrumb-item"><a href="#">Productos</a></li>
           </ol>
         </nav>
-        
-        <div class="text-right">
-         <a href="{% url 'agregar_productos' %}" class="btn btn-lg btn-labeled-right btn-info mr-2 btn-sm mr-2">
-            <span class="btn-label">
-              <span class="oi oi-arrow-thick-right" aria-hidden="true"></span>
-            </span>
-            <span class="btn-text">
-              Agregar
-            </span>
-          </a> 
-        </div>
-        
-        <div class="pb-3">          
-          <h1>Productos</h1>
-        </div>
+
+   <!-- Barra de herramientas -->
+   <div class="toolbar-container d-flex">
+    <!-- Botón Agregar -->
+    <a href="{% url 'agregar_productos' %}" class="btn btn-sm btn-labeled-right btn-primary">
+      <span class="btn-label">
+        <span class="oi oi-plus" aria-hidden="true"></span>
+      </span>
+      <span class="btn-text">Agregar</span>
+    </a>
+    <!-- Botón Importar -->
+ 
+    <a href="#" class="btn btn-sm btn-labeled-right btn-info btn-preimportar" >
+      <span class="btn-label">
+        <span class="oi oi-data-transfer-download" aria-hidden="true"></span>
+      </span>
+      <span class="btn-text">Importar</span>
+    </a>
+  
+   
+  </div>
+</div>
+</div>
+
+
+      
+<div class="pb-3">          
+  <h1>Productos</h1>
+</div>
         <div class="row">
           <div class="col">
             <div class="card mb-grid">
@@ -38,15 +70,23 @@
                 <table class="table table-actions table-striped table-hover mb-0" id=datatable-productos data-table>
                   <thead>
                     <tr>
-                      <th scope="col">Codigo</th>
+                      <th scope="col">#</th>
                       <th scope="col">Nombre</th>
                       <th scope="col">UMedida</th>
                       <th scope="col">Categoria</th>
                       <th scope="col">Proveedor</th>
                       <th scope="col">Costo Real</th>
                       <th scope="col">Costo Ofrecido</th>
-                      <th scope="col">Ganancia</th>
-                      <th scope="col">Stock</th>
+                      <th scope="col">Costo Mayoreo</th>
+                      <th scope="col">Stock
+
+                        <select id="stock-filter" class="form-control custom-select">
+                          <option value="todos">Todos</option>
+                          <option value="con-stock">Con Stock</option>
+                          <option value="sin-stock">Sin Stock</option>
+                      </select>
+
+                      </th>
                       <th class="center">Opciones</th>
                     </tr>
                   </thead>
@@ -55,14 +95,30 @@
                   {% for item in productos %}  
                     <tr id="item-{{item.id}}">
                       <td> {{ item.id }} </td>
-                      <td>{{item.nombre}}</td>
+                      <td>
+                      {% if item.se_importo %}
+                      <span style="text-decoration: underline double; text-decoration-color: green;">
+                        {{ item.nombre }}
+                      </span>
+                    {% else %}
+                      {{ item.nombre }}
+                    {% endif %}
+                    </td>
                       <td>{{item.umedida}}</td>
                       <td>{{item.categoria}}</td>
                       <td>{{item.proveedor}}</td>
                       <td>{{item.costo_real |floatformat:"2"|replace_comma}}</td>
                       <td>{{item.costo_ofrecido |floatformat:"2"|replace_comma}}</td>
-                      <td>{{item.ganancia |floatformat:"2"|replace_comma}}</td>
-                      <td>{{item.stock}}</td>
+                      <td>{{item.costo_mayoreo |floatformat:"2"|replace_comma}}</td>
+                      <td>
+                        {% if item.stock == 0 %}
+                          <span class="badge bg-danger custom-badge">{{ item.stock }}</span>
+                        {% elif item.stock >= 1 and item.stock <= 5 %}
+                          <span class="badge bg-warning text-dark custom-badge">{{ item.stock }}</span>
+                        {% else %}
+                          <span class="badge bg-success custom-badge">{{ item.stock }}</span>
+                        {% endif %}
+                      </td>
                       <td>
                         <a href="{% url 'productos_visualizar' item.id %}" class="btn btn-icon btn-sm mr-2">
                           <i data-feather="eye"></i>
@@ -84,55 +140,140 @@
       </div>
     </div>
   </div>
-  
+  </div>
+</div>
 
-  {% block javascripts %}
+
+
+<div class="modal fade" id="Modalpreimportar">
+  <div class="modal-dialog modal-lg">
+
+    <!-- Modal Pre Visualizacion del Excel-->
+    <div class="modal-content">
+      <div class="modal-header fondo-header">
+         <p style="color:white;" class="modal-title" id="Modalpreimportar">Vista Preliminar Archivo</p>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body" style="max-height: 500px; overflow-y: auto;">
+          <form id="frmproductos" method="POST"  enctype="multipart/form-data">{% csrf_token %}
+            <div class="mb-3">
+            
+
+              <input type="file" id="excelFile" class="form-control mb-3" accept=".xlsx, .xls">
+              <button id="uploadBtn" class="btn btn-success">Subir y Ver</button>
+  
+              <!-- Tabla donde se mostrarán los datos -->
+              <table class="table table-bordered table-striped table-hover mt-3" id="excelTable">
+                <thead class="table-light">
+                  <tr>
+                    <th>#</th>
+                    <th>Codigo</th>
+                    <th>Nombre</th>
+                    <th>Precio de Costo</th>
+                    <th>Precio de Venta</th>
+                    <th>Precio de Mayoreo</th>
+                    <th>Unidad de Medida</th>
+                    <th>Stock</th>
+                    <th>Stock Minimo</th>
+                    <th>Stock Maximo</th>
+                    <th>Categoria</th>
+                    <th>Proveedor</th>
+                    <th>Ubicacion</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Aquí se cargarán los datos -->
+                </tbody>
+              </table>
+            </div>
+            
+              
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button type="submit" class="btn btn-icon btn-info">Grabar</button>
+        
+      </div>
+  </form>
+    </div>
+  </div>
+</div>
+
+
+
+  
+{% block javascripts %}
+
+<script>
+  $('.btn-preimportar').on('click', function() {
+    $('#Modalpreimportar').modal('show');
+    
+});
+</script>
 
 <script>
   $(document).ready(function() {
     var table = $('[data-table]').DataTable({
-    language: {
-                "decimal": ".",
-                "emptyTable": "No hay información",
-                "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
-                "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
-                "infoFiltered": "(Filtrado de _MAX_ total entradas)",
-                "infoPostFix": "",
-                "thousands": ",",
-                "lengthMenu": "Mostrar _MENU_ Entradas",
-                "loadingRecords": "Cargando...",
-                "processing": "Procesando...",
-                "search": "Buscar:",
-                "zeroRecords": "Sin resultados encontrados",
-                "paginate": {
-                    "first": "Primero",
-                    "last": "Ultimo",
-                    "next": "Siguiente",
-                    "previous": "Anterior"
-                }
-              },
-              bLengthChange: true,
-              "iDisplayLength": 10,
-              bInfo: false,
-              responsive: true,
-              "bAutoWidth": false,
-              "columns": [
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-               
-                
+        language: {
+            "decimal": ".",
+            "emptyTable": "No hay información",
+            "info": "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+            "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+            "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+            "infoPostFix": "",
+            "thousands": ",",
+            "lengthMenu": "Mostrar _MENU_ Entradas",
+            "loadingRecords": "Cargando...",
+            "processing": "Procesando...",
+            "search": "Buscar:",
+            "zeroRecords": "Sin resultados encontrados",
+            "paginate": {
+                "first": "Primero",
+                "last": "Ultimo",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        bLengthChange: true,
+        "iDisplayLength": 10,
+        bInfo: true,
+        responsive: true,
+        "bAutoWidth": false,
+        "columns": [
+            null, null, null, null, null, null, null, null, null, null
+        ],
+       
+        layout: {
+        topStart: {
+            buttons: [
+               {
+                    extend: 'copy',
+                    text: '<i class="fas fa-copy"></i> Copiar', 
+                    
+                    
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel"></i> Excel',
+                    
+                },
+                {
+                  extend: 'pdfHtml5',
+                  text: '<i class="fas fa-file-pdf"></i> PDF',
+                  
+                },
+                {
+                  extend: 'colvis',
+                  text: '<i class="fas fa-columns"></i> Ver',
+                  
+                },
+            ],
             
-              ]
-          });
+        }
+    }
+     
     });
+});
+
 
 function deleteProductos(id) {
       Swal
@@ -159,12 +300,164 @@ function deleteProductos(id) {
                      }
                     }
                   });
-            
+                  window.location.href = '/listado_productos/';
             } else {
                 console.log("*NO se elimina el Producto*");
             }   
             })
         }
+</script> 
+
+<script>
+  $(document).ready(function(){
+    $('#uploadBtn').on('click', function(e){
+      e.preventDefault(); // Previene el envío tradicional del formulario
+
+      var fileInput = $('#excelFile')[0]; // Obtén el archivo desde el input
+      if (fileInput.files.length === 0) {
+        Swal.fire('Error', 'Por favor seleccione un archivo Excel.', 'error');
+        return;
+      }
+
+      // Validar que el archivo sea de tipo Excel (.xls o .xlsx)
+      var file = fileInput.files[0];
+      var allowedExtensions = ['xls', 'xlsx'];
+      var fileExtension = file.name.split('.').pop().toLowerCase();
+      
+      if (!allowedExtensions.includes(fileExtension)) {
+        Swal.fire('Error', 'Solo se permiten archivos Excel (.xls o .xlsx).', 'error');
+        return;
+      }
+
+      var formData = new FormData();
+      formData.append('file', file);  // Agrega el archivo Excel al FormData
+      formData.append('csrfmiddlewaretoken', $('input[name="csrfmiddlewaretoken"]').val()); // Agrega el token CSRF
+
+      // Limpiar la tabla y el input del archivo antes de cargar nuevos datos
+      $('#excelTable tbody').empty();
+      
+      $.ajax({
+        url: '{% url "importar_excel_productos" %}', // Asegúrate de que esta URL sea correcta
+        type: 'POST',
+        data: formData,
+        processData: false,  // Impide que jQuery procese los datos del archivo
+        contentType: false,  // Impide que jQuery establezca el contentType por defecto
+        success: function(response) {
+          // Llenar la tabla con los datos
+          if(response.data && response.data.length > 0) {
+            response.data.forEach(function(row, index){
+              var rowHtml = '<tr>';
+              // Agregar el número de fila dinámico
+              rowHtml += '<td>' + (index + 1) + '</td>';  // Número de fila (index + 1 para que empiece desde 1)  
+              row.forEach(function(cell){
+                rowHtml += '<td>' + cell + '</td>';
+              });
+              rowHtml += '</tr>';
+              $('#excelTable tbody').append(rowHtml);
+            });
+          } else {
+            Swal.fire('Advertencia', 'No se encontraron datos en el archivo.', 'warning');
+          }
+        },
+        error: function(xhr, status, error) {
+          Swal.fire('Error', 'Error al cargar el archivo: ' + error, 'error');
+        }
+      });
+    });
+  });
+</script>
+
+  
+
+
+<script>
+  $("#frmproductos").submit(function (e) {
+      e.preventDefault();
+      var fileInput = $('#excelFile')[0];
+      if (fileInput.files.length === 0) {
+          Swal.fire('Error', 'Por favor seleccione un archivo Excel.', 'error');
+          return;
+      }
+
+      var file = fileInput.files[0];
+      var allowedExtensions = ['xls', 'xlsx'];
+      var fileExtension = file.name.split('.').pop().toLowerCase();
+
+      if (!allowedExtensions.includes(fileExtension)) {
+          Swal.fire('Error', 'Solo se permiten archivos Excel (.xls o .xlsx).', 'error');
+          return;
+      }
+
+      Swal.fire({
+          title: '¿Desea cargar los datos del Excel?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, cargar',
+          cancelButtonText: 'Cancelar'
+      }).then((result) => {
+          if (result.isConfirmed) {
+              var formData = new FormData();
+              formData.append('file', file);
+              formData.append('csrfmiddlewaretoken', $('input[name="csrfmiddlewaretoken"]').val());
+
+              $.ajax({
+                  url: "{% url 'cargar_productos_excel' %}",
+                  type: "POST",
+                  data: formData,
+                  processData: false,
+                  contentType: false,
+                  success: function (response) {
+                      Swal.fire('Éxito', 'Productos cargados correctamente', 'success').then(() => {
+                          window.location.href = '/listado_productos';
+                      });
+                  },
+                  error: function (xhr) {
+                      var response = xhr.responseJSON;
+                      if (response && response.detalles) {
+                          var errores = response.detalles.join('<br>');
+                          Swal.fire({
+                              title: 'Errores encontrados',
+                              html: errores,
+                              icon: 'error'
+                          });
+                      } else {
+                          Swal.fire('Error', 'Error al cargar el archivo: ' + (response.message || 'Error desconocido'), 'error');
+                      }
+                  }
+              });
+          }
+      });
+  });
+</script>
+
+<script>
+  $(document).ready(function() {
+    // Inicializa DataTable
+    var table = $('#datatable-productos').DataTable();
+
+    // Verifica cuántas filas hay inicialmente
+    
+    
+    $('#stock-filter').on('change', function() {
+      var stockValue = $(this).val();  // Obtiene el valor seleccionado
+      
+      // Si "Con Stock" se selecciona, filtra solo los productos con stock > 0
+      if (stockValue == "con-stock") {
+          table.column(8).search('^[1-9][0-9]*$', true, false).draw();  // Solo productos con stock > 0
+      }
+      // Si "Sin Stock" se selecciona, filtra solo los productos con stock == 0
+      else if (stockValue == "sin-stock") {
+          table.column(8).search('^0$', true, false).draw();  // Solo productos con stock == 0
+      }
+      // Si "Todos" se selecciona, elimina el filtro y muestra todos los productos
+      else if (stockValue == "todos") {
+          table.column(8).search('', true, false).draw();  // Muestra todos los productos sin aplicar filtro en stock
+      }
+
+
+    });
+});
+
 </script> 
 
 {% endblock javascripts %}

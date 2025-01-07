@@ -12,7 +12,8 @@ from xhtml2pdf import pisa
 from django.contrib.auth import authenticate,logout,login as auth_login
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-
+import pandas as pd
+from openpyxl import load_workbook
 
 
 def Login(request):
@@ -133,7 +134,7 @@ def UpdateCrudProductos(request):
                 categoria=Categoria.objects.get(id=categoria_producto)
             productos.categoria=categoria
 
-            productos.des_prod=request.POST.get('txtdescripcion')
+            productos.descripcion=request.POST.get('txtdescripcion')
 
             proveedor_producto = request.POST.get('cmbproveedores')
             if proveedor_producto =="":
@@ -153,7 +154,24 @@ def UpdateCrudProductos(request):
                 umedida=Umedida.objects.get(id=umedida_producto)
             productos.umedida=umedida
 
+            campos_a_validar = ['txtcostomayoreo', 'txtstockmin', 'txtstockmax','txtstock']
+            valores, errores = validar_campos(request, campos_a_validar)
+
+            productos.codigo_interno=request.POST.get('txtcodinterno')
+            productos.costo_mayoreo=valores.get('txtcostomayoreo', 0)
+            productos.stock = valores.get('txtstock', 0)
+            productos.stock_maximo = valores.get('txtstockmax', 0)
+            productos.stock_minimo = valores.get('txtstockmin', 0)
+            productos.ubicacion=request.POST.get('txtubicacion')
+            productos.codigo_barra=request.POST.get('txtcodbarra')
+            if request.FILES.get('imagen'):
+                productos.imagen = request.FILES['imagen']
             productos.save()
+
+            # if errores:
+            #     return JsonResponse({'errores': errores}, status=400)
+            # else:
+                
         except Exception as error:
             response_data['flag'] = False
             response_data['msg'] = f'No Se Modifico el Productos Correctamente {error}'
@@ -164,15 +182,47 @@ def UpdateCrudProductos(request):
         return JsonResponse(response_data)   
     return render(request,template_name) 
 
+def validar_campos(request, campos):
+    valores_validos = {}
+    errores = {}
+
+    for campo in campos:
+        valor = request.POST.get(campo)
+        
+        if not valor or not valor.strip().isdigit():
+            valores_validos[campo] = 0  # Asignar valor por defecto si está vacío o no es numérico
+            errores[campo] = f"El campo {campo} es obligatorio y debe ser un número válido."
+        else:
+            valores_validos[campo] = int(valor)  # Asignar el valor convertido a entero
+    
+    return valores_validos, errores
+
 
 class DeleteCrudProductos(View):
-    def  get(self, request):
+    def get(self, request):
         id1 = request.GET.get('id', None)
-        Producto.objects.get(id=id1).delete()
-        data = {
-            'deleted': True
-        }
-        return JsonResponse(data)
+        if not id1:
+            return JsonResponse({'error': 'ID no proporcionado.'}, status=400)
+        try:
+            Producto.objects.get(id=id1).delete()
+            data = {'deleted': True}
+            return JsonResponse(data)
+        except Producto.DoesNotExist:
+            return JsonResponse({'error': 'El elemento no existe.'}, status=404)
+
+    def post(self, request):
+        id1 = request.POST.get('id', None)
+        if not id1:
+            return JsonResponse({'error': 'ID no proporcionado.'}, status=400)
+         
+        try:
+            Producto.objects.get(id=id1).delete()
+            data = {'deleted': True}
+            return JsonResponse(data)
+        except Producto.DoesNotExist:
+            return JsonResponse({'error': 'El elemento no existe.'}, status=404)
+        
+
 
 @login_required    
 def Productos_form(request):
@@ -191,6 +241,15 @@ def CreateCrudProductos(request):
     template_name="Nuevo_productos.html"
     if request.POST.get('action') =='registrar_productos':
         try:
+            campos_a_validar = ['txtcostomayoreo', 'txtstockmin', 'txtstockmax','txtstock']
+            valores, errores = validar_campos(request, campos_a_validar)
+            codigo_interno=request.POST.get('txtcodinterno')
+            codigo_barra=request.POST.get('txtcodbarra')
+            costo_mayoreo=valores.get('txtcostomayoreo', 0)
+            stock=valores.get('txtstock', 0)
+            stock_maximo = valores.get('txtstockmax', 0)
+            stock_minimo = valores.get('txtstockmin', 0)
+            ubicacion=request.POST.get('txtubicacion')
             nombre_producto = request.POST.get('txtnomprod')
             categoria_producto = request.POST.get('cmbcategoria')
             des_producto = request.POST.get('txtdescripcion')
@@ -202,6 +261,7 @@ def CreateCrudProductos(request):
             categoria=Categoria.objects.get(id=categoria_producto)
             proveedor=Proveedor.objects.get(id=proveedor_producto)
             umedida=Umedida.objects.get(id=unidadmedida_producto)
+            imagen = request.FILES.get('imagen', None)
             Producto.objects.create(nombre=nombre_producto,
                                       categoria=categoria,
                                       descripcion=des_producto,
@@ -209,7 +269,16 @@ def CreateCrudProductos(request):
                                       costo_real=costoreal,
                                       costo_ofrecido=costofrecido,
                                       ganancia=ganancia,
-                                      umedida=umedida 
+                                      umedida=umedida,
+                                      codigo_interno= codigo_interno,
+                                      codigo_barra=codigo_barra,
+                                      costo_mayoreo=costo_mayoreo,
+                                      stock=stock,
+                                      stock_maximo=stock_maximo,
+                                      stock_minimo=stock_minimo,
+                                      ubicacion=ubicacion,
+                                      se_importo=False,
+                                      imagen=imagen
                                       )
             
         except Exception as error:
@@ -230,7 +299,121 @@ class AutocompleteServicios(View):
         suggestions = [{'nombre': item.nombre, 'precio': item.costo_real,'precio_venta':item.costo_ofrecido,'stock':item.stock,'id': item.pk } for item in items]
         return JsonResponse({'suggestions': suggestions})
     
-  
+
+
+@login_required
+def importar_excel_productos(request):
+    if request.method == 'POST' and request.FILES.get('file'):
+        excel_file = request.FILES['file']
+        try:
+            # Lee el archivo Excel
+            df = pd.read_excel(excel_file)
+            # Reemplaza valores NaN con cadenas vacías o valores por defecto
+            df.fillna('', inplace=True)
+            # Convierte los datos a una lista
+            data = df.values.tolist()
+            return JsonResponse({'data': data})
+        except Exception as e:
+            # Maneja cualquier error al leer el archivo
+            return JsonResponse({'error': str(e)}, status=400)
+    
+    return JsonResponse({'error': 'No file uploaded'}, status=400)
+ 
+
+
+@login_required
+def cargar_productos_excel(request):
+    if request.method == 'POST' and request.FILES.get('file'):
+        try:
+            archivo = request.FILES['file']
+            
+            if not archivo.name.endswith('.xlsx'):
+                return JsonResponse({'error': 'El archivo debe ser un archivo Excel (.xlsx)'}, status=400)
+
+            workbook = load_workbook(archivo)
+            sheet = workbook.active
+
+            errores = []  # Lista para almacenar errores
+
+            with transaction.atomic():  # Inicia una transacción atómica
+                for index, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=2):
+                    if len(row) != 12:
+                        errores.append(f"Error en la fila {index}: se esperaban 12 columnas, pero se encontraron {len(row)}")
+                        continue
+                    try:
+                        # Desempaquetar fila
+                        Codigo, Nombre, PreciodeCosto, PreciodeVenta, PreciodeMayoreo, Unidaddemedida, Stock, StockMinimo, StockMaximo, CategoriaV, ProveedorV, Ubicacion = row
+
+                        # Validar datos obligatorios
+                        if not Nombre or PreciodeCosto in [None, ""] or PreciodeVenta in [None, ""] or Stock in [None, ""]:
+                            errores.append(f"Faltan datos obligatorios en la fila {index}")
+                            continue
+
+                        # Validar y convertir valores numéricos
+                        def validar_numero(valor):
+                            if valor in ["No aplica", None, ""]:
+                                return 0
+                            try:
+                                return float(valor)
+                            except ValueError:
+                                raise ValueError(f"Valor numérico inválido en la fila {index}")
+
+                        costo_real = validar_numero(PreciodeCosto)
+                        costo_ofrecido = validar_numero(PreciodeVenta)
+                        costo_mayoreo = validar_numero(PreciodeMayoreo)
+                        stock = validar_numero(Stock)
+                        stock_minimo = validar_numero(StockMinimo)
+                        stock_maximo = validar_numero(StockMaximo)
+
+                        # Obtener objetos relacionados
+                        ObjCategoria = get_or_default(Categoria, CategoriaV, "SIN CATEGORIA")
+                        ObjProveedor = get_or_default(Proveedor, ProveedorV, "SIN PROVEEDOR")
+                        ObjUmedida = get_or_default(Umedida, Unidaddemedida, "SIN UMEDIDA")
+
+                        # Crear producto
+                        Producto.objects.create(
+                            codigo_interno=Codigo,
+                            nombre=Nombre,
+                            costo_real=costo_real,
+                            costo_ofrecido=costo_ofrecido,
+                            costo_mayoreo=costo_mayoreo,
+                            stock=int(stock),
+                            stock_minimo=int(stock_minimo),
+                            stock_maximo=int(stock_maximo),
+                            ubicacion=Ubicacion,
+                            categoria=ObjCategoria,
+                            proveedor=ObjProveedor,
+                            umedida=ObjUmedida,
+                            se_importo=True
+                        )
+                    except Exception as e:
+                        errores.append(f"Error en la fila {index}: {str(e)}")
+
+                # Si hay errores, se cancela la transacción
+                if errores:
+                    raise ValueError("Errores encontrados en el archivo Excel")
+
+            # Si todo va bien, se retorna éxito
+            return JsonResponse({'mensaje': 'Todos los productos se cargaron correctamente'})
+
+        except Exception as e:
+            return JsonResponse({'message': 'No se realizó la carga debido a errores', 'detalles': errores}, status=400)
+
+    return JsonResponse({'error': 'No se recibió un archivo válido'}, status=400)
+
+def get_or_default(model, field_name, default_value):
+    """
+    Intenta obtener un objeto del modelo por el campo 'field_name'.
+    Si no se encuentra, devuelve el objeto correspondiente al valor por defecto.
+    """
+    if not field_name:  # Si el valor es vacío o None
+        return model.objects.get(nombre=default_value)
+    
+    # Intentar obtener el objeto por nombre
+    obj = model.objects.filter(nombre=field_name).first()
+    
+    # Si no existe, devolver el objeto por defecto
+    return obj if obj else model.objects.get(nombre=default_value) 
 #endregion Productos
 
 #region Categorias

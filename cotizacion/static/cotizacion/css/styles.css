@@ -375,3 +375,155 @@ tfoot th:first-child {
 #datatable-compra tbody tr:nth-child(even) {
   background-color: #e6e6e6; /* Color de fondo suave para filas pares */
 }
+
+.no-imagen {
+  width: 150px;
+  height: 150px;
+  background-color: #f8d7da; /* Color de fondo para llamar la atención */
+  border: 3px solid #f44336; /* Borde rojo */
+  border-radius: 8px; /* Bordes redondeados */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: shake 0.6s ease-out infinite; /* Efecto de sacudida */
+}
+
+.no-imagen span {
+  font-size: 16px;
+  font-weight: bold;
+  color: #f44336; /* Color de texto rojo */
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+.img-fluid {
+transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+border-radius: 15px;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+filter: brightness(0.9);
+border: 5px solid transparent;
+background-image: linear-gradient(45deg, #ff6347, #ff99cc, #99ccff);
+background-origin: border-box;
+background-clip: content-box;
+}
+
+/* Efecto hover */
+.img-fluid:hover {
+transform: scale(1.1); /* Aumenta el tamaño de la imagen al hacer hover */
+box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); /* Sombras más pronunciadas */
+filter: brightness(1.1) contrast(1.2); /* Ajusta brillo y contraste al hacer hover */
+border-color: green;
+border-width: 6px; /* Hace más grueso el borde al pasar el mouse */
+}
+
+.required {
+  color: red;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+
+ .toolbar-container {
+    margin-top: 10px; /* Espaciado entre breadcrumb y barra de herramientas */
+  }
+  .toolbar-container .btn {
+    margin-right: 15px; /* Espaciado entre los botones */
+    font-size: 14px; /* Tamaño de la fuente */
+    padding: 5px 15px; /* Reducción del padding */
+    display: flex; /* Flexbox para alinear contenido */
+    justify-content: space-between; /* Asegura que texto e iconos se separen */
+    align-items: center; /* Alineación vertical */
+    min-width: 120px; /* Espacio mínimo para acomodar el texto y el icono */
+  }
+  
+
+/* Estilos personalizados para la tabla */
+/* Estilos personalizados para la tabla */
+#excelTable {
+  font-size: 14px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#excelTable th,
+#excelTable td {
+  padding: 12px;
+  text-align: center;
+}
+
+#excelTable thead {
+  background-color: #17a2b8; /* Fondo verde */
+}
+
+#excelTable thead th {
+  color: white !important; /* Texto blanco */
+  font-weight: bold;
+}
+
+#excelTable tbody tr:nth-child(odd) {
+  background-color: #f2f2f2; /* Color de fondo alterno para filas */
+}
+
+#excelTable tbody tr:hover {
+  background-color: #e9ecef; /* Color de fondo al pasar el mouse */
+}
+
+#excelTable tbody td {
+  border-top: 1px solid #ddd; /* Borde entre las celdas */
+}
+
+/* Efectos de borde suave */
+#excelTable th, #excelTable td {
+  border-radius: 4px;
+}
+
+.custom-badge {
+  font-size: 1.0rem;  /* Ajusta el tamaño del texto */
+  padding: 0.75em 1.5em;  /* Ajusta el tamaño del fondo */
+}
+
+/* Estilo general para el combo */
+.custom-select {
+  width: 100%; /* Hace que el select ocupe todo el ancho de la columna */
+  padding: 10px; /* Espaciado interno */
+  border-radius: 8px; /* Bordes redondeados */
+  background-color: #f8f9fa; /* Color de fondo claro */
+  border: 1px solid #ced4da; /* Borde gris claro */
+  font-size: 1rem; /* Tamaño de fuente */
+  font-weight: 500; /* Peso de fuente */
+  transition: all 0.3s ease; /* Transición suave para interacciones */
+}
+
+/* Estilo al pasar el mouse sobre el combo */
+.custom-select:hover {
+  background-color: #e9ecef; /* Fondo un poco más oscuro al pasar el ratón */
+  border-color: #adb5bd; /* Borde más oscuro */
+}
+
+/* Estilo cuando el select está en foco */
+.custom-select:focus {
+  background-color: #fff; /* Fondo blanco cuando tiene el foco */
+  border-color: #007bff; /* Borde azul para indicar el foco */
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Sombra azul alrededor del select */
+}
+
+/* Estilo personalizado para las opciones */
+.custom-select option {
+  padding: 10px; /* Espaciado para las opciones */
+  font-size: 1rem; /* Tamaño de la fuente de las opciones */
+}
+
+/* Estilo responsivo: hacer que el filtro se ajuste en pantallas pequeñas */
+@media (max-width: 768px) {
+  .custom-select {
+      font-size: 0.9rem; /* Reduce el tamaño de la fuente en pantallas pequeñas */
+  }
+}
+
+

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import index,Productos_listado,Productos_visualizar,DeleteCrudProductos,UpdateCrudProductos,Productos_form,CreateCrudProductos,Categorias_listado,Categoria_form,CreateCrudCategorias,UpdateCrudCategorias,Categoria_visualizar,DeleteCrudCategorias,Proveedores_listado,Proveedor_form,CreateCrudProveedores,DeleteCrudProveedores,Proveedor_visualizar,UpdateCrudProveedor,Cotizacion_crear,AutocompleteServicios,Clientes_listado,Cliente_form,CreateCrudClientes,DeleteCrudClientes,Cliente_visualizar,UpdateCrudCliente,AutocompleteClientes,Grabar_item_cotizacion,Listar_cotizaciones,Cancelar_cotizacion,Cotizacion_visualizar,Eliminar_detalle_cotizacion,modificar_item_cotizacion,EliminarItemCotizacionBD,Actualizar_totales_bd,EliminarCotizacionBD,obtener_la_ultima_cotizacion,visualizar_cotizacion,Login,Logoutapp,Listar_ventas,Cotizacion_a_Ventas,Visualizar_Venta,Listar_compras,Compra_crear,Grabar_item_compra,Eliminar_detalle_compra,Visualizar_Compra,EliminarItemComprasBD,Grabar_item_compraBD,actualizar_cabecera_compraBD,EliminarCompraBD
+from .views import index,Productos_listado,Productos_visualizar,DeleteCrudProductos,UpdateCrudProductos,Productos_form,CreateCrudProductos,Categorias_listado,Categoria_form,CreateCrudCategorias,UpdateCrudCategorias,Categoria_visualizar,DeleteCrudCategorias,Proveedores_listado,Proveedor_form,CreateCrudProveedores,DeleteCrudProveedores,Proveedor_visualizar,UpdateCrudProveedor,Cotizacion_crear,AutocompleteServicios,Clientes_listado,Cliente_form,CreateCrudClientes,DeleteCrudClientes,Cliente_visualizar,UpdateCrudCliente,AutocompleteClientes,Grabar_item_cotizacion,Listar_cotizaciones,Cancelar_cotizacion,Cotizacion_visualizar,Eliminar_detalle_cotizacion,modificar_item_cotizacion,EliminarItemCotizacionBD,Actualizar_totales_bd,EliminarCotizacionBD,obtener_la_ultima_cotizacion,visualizar_cotizacion,Login,Logoutapp,Listar_ventas,Cotizacion_a_Ventas,Visualizar_Venta,Listar_compras,Compra_crear,Grabar_item_compra,Eliminar_detalle_compra,Visualizar_Compra,EliminarItemComprasBD,Grabar_item_compraBD,actualizar_cabecera_compraBD,EliminarCompraBD,importar_excel_productos,cargar_productos_excel
 
 def seleccionar_vista(request, *args, **kwargs):
     # Verifica si existe la variable de sesión 'opcion'
@@ -64,5 +64,7 @@ urlpatterns = [
     path('Grabar_item_compraBD/', Grabar_item_compraBD, name='Grabar_item_compraBD'),
     path('actualizar_cabecera_compraBD/', actualizar_cabecera_compraBD, name='actualizar_cabecera_compraBD'),
     path('eliminar_compra_bd', EliminarCompraBD.as_view(),name="eliminar_compra_bd"),
+    path('importar_excel_productos/', importar_excel_productos, name='importar_excel_productos'),
+    path('cargar_productos_excel/', cargar_productos_excel, name='cargar_productos_excel'),
     
 ]

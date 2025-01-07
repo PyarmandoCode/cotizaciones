@@ -2,6 +2,8 @@
 {% block title %} Editar Productos {% endblock %} 
 
 {% block content %}
+{% load custom_filters %} 
+
 
 <div class="adminx-content">
   <div class="adminx-main-content">
@@ -18,128 +20,211 @@
         <h1>Editar Productos</h1>
       </div>
 
-      <div class="row">
-        <div class="col-lg-6">
-          <div class="card mb-grid">
-            <div
-              class="card-header d-flex justify-content-between align-items-center"
-            >
-              <div class="card-header-title">Datos del Producto</div>
-
-              <nav class="card-header-actions">
-                <a
-                  class="card-header-action"
-                  data-toggle="collapse"
-                  href="#card1"
-                  aria-expanded="false"
-                  aria-controls="card1"
-                >
-                  <i data-feather="minus-circle"></i>
-                </a>
-
-                <div class="dropdown">
-                  <a
-                    class="card-header-action"
-                    href="#"
-                    role="button"
-                    id="card1Settings"
-                    data-toggle="dropdown"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                  >
-                    <i data-feather="settings"></i>
-                  </a>
-
-                  
-                </div>
-
-                <a href="#" class="card-header-action">
-                  <i data-feather="x-circle"></i>
-                </a>
-              </nav>
-            </div>
-            <div class="card-body collapse show" id="card1">       
-               <form class="forms-sample" id="formeditproducto" method="POST">{% csrf_token %} 
-                <div class="form-group">
-                  <label class="form-label" for="txtnomprod">Nombre Producto</label>
-                  <input class="form-control mb-2" type="text"  id="txtnomprod" value="{{productos.nombre}}" required>
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label" for="cmbcategoria">Categoria</label>
-                  <select class="form-control" id="cmbcategoria">
-                    <option  value="" selected="selected">{{categoriaseleccionado}}</option>
-                      {% for item in Categorias %}
-                          <option value="{{item.id}}">{{item.nombre}}</option>
-                      {% endfor %}
-                  </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="cmbumedida">Unidad Medida</label>
-                <select class="form-control" id="cmbumedida">
-                  <option  value="" selected="selected">{{umedidaseleccionado}}</option>
-                    {% for item in Umedida %}
-                        <option value="{{item.id}}">{{item.nombre}}</option>
-                    {% endfor %}
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="txtdescripcion">Descripcion</label>
-                <textarea class="form-control" id="txtdescripcion" rows="3">{{productos.descripcion}}</textarea>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="cmbproveedores">Proveedor</label>
-                <select class="form-control" id="cmbproveedores">
-                  <option  value="" selected="selected">{{proveedorseleccionado}}</option>
-                    {% for item in Proveedores %}
-                        <option value="{{item.id}}">{{item.nombre}}</option>
-                    {% endfor %}
-                </select>
-              </div>
-
-             
-
-              <div class="form-group">
-                <label class="form-label" for="txtcostoreal">Costo Real</label>
-                <input class="form-control mb-2" type="text"  id="txtcostoreal"  value="{{productos.costo_real}}" required>
-              </div>
-
+     <div class="row">
+      <div class="col-lg-12">
+        <div class="card mb-grid">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header-title">Datos del Producto</div>
+            <nav class="card-header-actions">
+              <a class="card-header-action" data-toggle="collapse" href="#card1" aria-expanded="false" aria-controls="card1">
+                <i data-feather="minus-circle"></i>
+              </a>
+              <a href="#" class="card-header-action">
+                <i data-feather="x-circle"></i>
+              </a>
+            </nav>
+          </div>
+          <div class="card-body collapse show" id="card1">
+            <form class="forms-sample" id="formeditproducto" method="POST" enctype="multipart/form-data">{% csrf_token %}
               
-              <div class="form-group">
-                <label class="form-label" for="txtcostofrecido">Costo Ofrecido</label>
-                <input class="form-control mb-2" type="text"  id="txtcostofrecido"  value="{{productos.costo_ofrecido}}" required>
-              </div>
+              <div class="row">
+                <!-- Imagen del producto -->
+                <div class="col-md-3 text-center">
+                  <div id="image-container" class="image-container">
+                  {% if productos.imagen %}
+                        <img id="imagenprevia" src="{{ productos.imagen.url }}" alt="{{ productos.nombre }}" class="img-fluid">
+                  {% else %}
+                    <div id="no-imagen" class="no-imagen">
+                        <span class="text-muted">No hay imagen disponible</span>
+                    </div>
+                  {% endif %}
+                  </div>
 
-              {% comment %} <div class="form-group">
-                <label class="form-label" for="txtganancia">Ganancia</label>
-                <input class="form-control mb-2" type="text"  id="txtganancia"  value="{{productos.ganancia}}" required>
-              </div> {% endcomment %}
+                  <div class="form-group">  
+                    <input type="file" class="form-control-file" id="imagenProducto" name="imagenProducto">
+                  </div>
+                  <div class="form-group mt-3">
+                    {% if productos.imagen_codigo_barras %}
+                        <!-- Imagen del código de barras ajustada -->
+                        <img src="{{ productos.imagen_codigo_barras.url }}" alt="Código de barras" class="img-fluid" style="max-width: 150px;">
+                    {% else %}
+                        <!-- Si no hay imagen, mostrar texto o un ícono predeterminado -->
+                        <span>Sin Codigo de Barra que Mostrar</span>
+                    {% endif %}
+                </div>
+                </div>
+      
+                <!-- Campos del formulario -->
+                <div class="col-md-9">
+                  <!-- Fila 1 -->
+                  <div class="row">
 
-               
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label for="txtcodinterno">Codigo Interno</label>
+                        <input class="form-control" type="text" id="txtcodinterno" value="{{productos.codigo_interno|default:'' }}" >
+                      </div>
+                    </div>
 
-                <div class="form-group">
-                  <div class="custom-control custom-checkbox">
-                    <input
-                      type="checkbox"
-                      class="custom-control-input"
-                      id="chkestadopre"
-                    />
-                    <label class="custom-control-label" for="chkestadopre"
-                      >Activo</label
-                    >
+                    
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label for="txtcodbarra">Codigo Barra</label>
+                        
+                        <input class="form-control" type="text" id="txtcodbarra" value="{{productos.codigo_barra|default:'' }}" >
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label for="txtnomprod">Nombre Producto</label>
+                        <input class="form-control" type="text" id="txtnomprod" value="{{productos.nombre}}" required>
+                      </div>
+                    </div>
+                  </div>
+      
+                  <!-- Fila 2 -->
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="form-label" for="cmbcategoria">Categoria</label>
+                        <select class="form-control" id="cmbcategoria">
+                          <option value="" selected="selected">Seleccione una Categoria</option>
+                          {% for item in Categorias %}
+                              <option value="{{ item.id }}" {% if item.id == productos.categoria.id %}selected{% endif %}>
+                                  {{ item.nombre }}
+                              </option>
+                          {% endfor %}
+                      </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="form-label" for="cmbumedida">Unidad Medida</label>
+                        <select class="form-control" id="cmbumedida">
+                          <option value="" selected="selected">Seleccione Unidad Medida</option>
+                          {% for item in Umedida %}
+                              <option value="{{ item.id }}" {% if item.id == productos.umedida.id %}selected{% endif %}>
+                                  {{ item.nombre }}
+                              </option>
+                          {% endfor %}
+                      </select>
+                      </div>
+                    </div>
+                  </div>
+      
+                  <!-- Fila 3 -->
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label for="txtdescripcion">Descripcion</label>
+                        <textarea class="form-control" id="txtdescripcion" rows="3">{{productos.descripcion|default:''}}</textarea>
+                      </div>
+                    </div>
+                  </div>
+      
+                  <!-- Fila 4 -->
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="form-label" for="cmbproveedores">Proveedor</label>
+                        <select class="form-control" id="cmbproveedores">
+                          <option value="" selected="selected">Seleccione un proveedor</option>
+                          {% for item in Proveedores %}
+                              <option value="{{ item.id }}" {% if item.id == productos.proveedor.id %}selected{% endif %}>
+                                  {{ item.nombre }}
+                              </option>
+                          {% endfor %}
+                      </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="txtcostoreal">Costo Real</label>
+                        <input class="form-control" type="text" id="txtcostoreal" value="{{productos.costo_real|default:''|floatformat:"2"|replace_comma }}" required>
+                      </div>
+                    </div>
+                  </div>
+      
+                  <!-- Fila 5 -->
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label for="txtcostofrecido">Costo Ofrecido</label>
+                        <input class="form-control" type="text" id="txtcostofrecido" value="{{productos.costo_ofrecido|default:''|floatformat:"2"|replace_comma }}" required>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label for="txtcostomayoreo">Costo Mayoreo</label>
+                        <input class="form-control" type="text" id="txtcostomayoreo" value="{{productos.costo_mayoreo|default:''|floatformat:"2"|replace_comma }}" >
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label for="txtstock">Stock</label>
+                        <input class="form-control" type="text" id="txtstock" value="{{productos.stock|default:'' }}" >
+                      </div>
+                    </div>
+                  </div>
+      
+                  <!-- Fila 6 -->
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label for="txtstockmin">Stock Minimo</label>
+                        <input class="form-control" type="text" id="txtstockmin" value="{{productos.stock_minimo|default:'' }}" >
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label for="txtstockmax">Stock Maximo</label>
+                        <input class="form-control" type="text" id="txtstockmax" value="{{productos.stock_maximo|default:'' }}" >
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label for="txtubicacion">Ubicacion</label>
+                        <input class="form-control" type="text" id="txtubicacion" value="{{productos.ubicacion|default:'' }}" >
+                      </div>
+                    </div>
+                  </div>
+      
+                  <!-- Fila 7 -->
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                          <input type="checkbox" class="custom-control-input" id="chkestadopre">
+                          <label class="custom-control-label" for="chkestadopre">Activo</label>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <button type="submit"   class="btn btn-primary">Grabar</button>
-              </form>
-            </div>
+              </div>
+      
+              <div class="row mt-3">
+                <div class="col-md-12 text-right">
+                  <button type="submit" class="btn btn-primary">Grabar</button>
+                </div>
+              </div>
+      
+            </form>
           </div>
         </div>
       </div>
-</div>
-
+      
+      
 {% block javascripts %}
 
 
@@ -151,14 +236,26 @@
       formData.append('txtdescripcion',$('#txtdescripcion').val())
       formData.append('txtcostoreal',$('#txtcostoreal').val())
       formData.append('txtcostofrecido',$('#txtcostofrecido').val())
-     /* formData.append('txtganancia',$('#txtganancia').val()) */
+      formData.append('txtcostomayoreo',$('#txtcostomayoreo').val()) 
       formData.append('cmbumedida', $('#cmbumedida').val())
       formData.append('cmbcategoria',$('#cmbcategoria').val())
       formData.append('cmbproveedores',$('#cmbproveedores').val())
+      formData.append('txtstock',$('#txtstock').val())
+      formData.append('txtstockmin',$('#txtstockmin').val())
+      formData.append('txtstockmax',$('#txtstockmax').val())
+      formData.append('txtubicacion',$('#txtubicacion').val())
+      formData.append('txtcodinterno',$('#txtcodinterno').val())
+      formData.append('txtcodbarra',$('#txtcodbarra').val())
 
-  
+       // Agregar imagen al formData
+       if ($('#imagenProducto')[0].files && $('#imagenProducto')[0].files.length > 0) {
+        var imagen = $('#imagenProducto')[0].files[0];
+        formData.append('imagen', imagen);
+        }
+       else {
+         console.log('No se ha seleccionado una imagen');
+        }
       formData.append('action','actualizar_productos')
-    
       formData.append('id',{{productos.id}})    
       formData.append('csrfmiddlewaretoken', '{{ csrf_token }}')
       $.ajax({
@@ -198,6 +295,56 @@
   function img_pathUrl(input){
     $('#img_url')[0].src = (window.URL ? URL : webkitURL).createObjectURL(input.files[0]);
   }
+</script>
+
+<script>
+ 
+  document.addEventListener('DOMContentLoaded', function() {
+    var imagenProducto = document.getElementById('imagenProducto');
+    var imageContainer = document.getElementById('image-container');  // Usamos el ID para obtener el contenedor de la imagen
+    var noImagenDiv = document.getElementById('no-imagen');  // Div para el mensaje "No hay imagen disponible"
+    // Verificamos que el contenedor exista
+    if (!imageContainer) {
+        console.error("El contenedor de la imagen no se ha encontrado.");
+        return;
+    }
+
+    imagenProducto.addEventListener('change', function(event) {
+        var file = event.target.files[0];
+        
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                // Ocultamos el div "No hay imagen disponible"
+                if (noImagenDiv) {
+                    noImagenDiv.style.display = 'none';
+                }
+
+                // Creamos una nueva imagen para mostrarla
+                var imagePreview = document.createElement('img');
+                imagePreview.id = "imagenprevia";
+                imagePreview.src = e.target.result;
+                imagePreview.classList.add('img-fluid');  // Clase para hacer la imagen responsiva
+                imagePreview.classList.add('hover-effect');  // Clase para los efectos de hover
+
+                // Estilos adicionales para limitar el tamaño
+                imagePreview.style.maxWidth = '100%';
+                imagePreview.style.maxHeight = '300px';
+
+                // Limpiar el contenedor antes de agregar la nueva imagen
+                imageContainer.innerHTML = '';
+                imageContainer.appendChild(imagePreview);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            // Si no hay archivo, mostramos el mensaje "No hay imagen disponible"
+            if (noImagenDiv) {
+                noImagenDiv.style.display = 'block';
+            }
+        }
+    });
+});
+
 </script>
 
 {% endblock javascripts %}

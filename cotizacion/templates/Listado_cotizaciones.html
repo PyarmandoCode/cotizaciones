@@ -113,7 +113,7 @@
         },
         bLengthChange: true,
         "iDisplayLength": 10,
-        bInfo: false,
+        bInfo: true,
         responsive: true,
         "bAutoWidth": false,
         "columns": [
@@ -125,6 +125,7 @@
             null,
             { "orderable": false },
         ],
+        
         "createdRow": function(row, data, dataIndex) {
           // Cambiar el texto por badges de Bootstrap según el estado
           var estado = data[4];
@@ -149,7 +150,35 @@
                   badgeClass = 'badge-secondary';
           }
           $(row).find('td:eq(4)').html('<span class="badge ' + badgeClass + '">' + estado + '</span>');
-      }
+      },
+      layout: {
+        topStart: {
+            buttons: [
+               {
+                    extend: 'copy',
+                    text: '<i class="fas fa-copy"></i> Copiar', 
+                    
+                    
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel"></i> Excel',
+                    
+                },
+                {
+                  extend: 'pdfHtml5',
+                  text: '<i class="fas fa-file-pdf"></i> PDF',
+                  
+                },
+                {
+                  extend: 'colvis',
+                  text: '<i class="fas fa-columns"></i> Ver',
+                  
+                },
+            ],
+            
+        }
+    }
   });
 });
 

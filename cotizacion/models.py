@@ -2,6 +2,11 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
+import barcode
+from barcode.writer import ImageWriter
+from io import BytesIO
+from django.core.files.base import ContentFile
+from django.core.exceptions import ValidationError
 
 class Empresa(models.Model):
     nombre = models.CharField(max_length=200)
@@ -62,6 +67,7 @@ class Umedida(models.Model):
 class Categoria(models.Model):
     nombre = models.CharField(max_length=200)
     state = models.BooleanField(default=True)
+    imagen=models.ImageField(upload_to='imagenes/', blank=True, null=True)
 
     class Meta:
         db_table = 'Categoria'
@@ -71,23 +77,53 @@ class Categoria(models.Model):
     
 
 class Producto(models.Model):
+    codigo_interno=models.CharField(max_length=100,blank=True, null=True)
+    codigo_barra=models.CharField(max_length=100,blank=True, null=True)
     nombre = models.CharField(max_length=200)
     categoria=models.ForeignKey(Categoria, models.DO_NOTHING,blank=True, null=True)
     descripcion=models.TextField(blank=True, null=True)
-    proveedor=models.ForeignKey(Proveedor, models.DO_NOTHING)
+    proveedor=models.ForeignKey(Proveedor, models.DO_NOTHING,blank=True, null=True)
     #concepto=models.TextField(max_length=500,blank=True, null=True
     costo_real=models.DecimalField(max_digits=7, decimal_places=2)
     costo_ofrecido=models.DecimalField(max_digits=7, decimal_places=2)
+    costo_mayoreo=models.DecimalField(max_digits=7, decimal_places=2,blank=True, null=True)
     ganancia=models.DecimalField(max_digits=7, decimal_places=2,blank=True, null=True)
-    umedida=models.ForeignKey(Umedida, models.DO_NOTHING)
-    state = models.BooleanField(default=True)
+    umedida=models.ForeignKey(Umedida, models.DO_NOTHING,blank=True, null=True)
     stock = models.PositiveIntegerField(default=0)
+    stock_minimo= models.PositiveIntegerField(default=0)
+    stock_maximo= models.PositiveIntegerField(default=0)
+    ubicacion=models.CharField(max_length=200,blank=True, null=True)
+    imagen=models.ImageField(upload_to='imagenes/', blank=True, null=True)
+    imagen_codigo_barras = models.ImageField(upload_to='codigos_barras/', blank=True, null=True)
+    se_importo=models.BooleanField(default=False)#ESTE CAMPO ES IMPORTANTE PORQUE CUANDO ACTUALIZE EL
+    #STOCK NO PODRE HACERLO DESDE COMPRAS DEBERA SE MANUALMENTE PORQUE SE IMPORTO Y NO HAY UN NUMERO
+    #COMPRA ASOCIADO
+    state = models.BooleanField(default=True)
     class Meta:
         db_table = 'Producto'
         ordering = ['nombre']
 
     def __str__(self):
         return self.nombre
+    
+    
+    
+    def save(self, *args, **kwargs):
+        # Si el campo de código de barras no tiene valor, lo generamos automáticamente
+        if self.codigo_barra and not self.imagen_codigo_barras:
+            # Generamos el código de barras usando python-barcode
+            codigo_barra = barcode.get_barcode_class('ean13')
+            barcode_instance = codigo_barra(self.codigo_barra, writer=ImageWriter())
+            
+            # Creamos una imagen en memoria
+            buffer = BytesIO()
+            barcode_instance.write(buffer)
+            
+            # Creamos un archivo temporal para guardar la imagen
+            filename = f'{self.codigo_barra}.png'
+            self.imagen_codigo_barras.save(filename, ContentFile(buffer.getvalue()), save=False)
+           
+        super().save(*args, **kwargs)
 
 
 
