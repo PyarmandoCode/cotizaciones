@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-k9(g_^%a5f4!i(eusa_dj+i5ygri0au(7erqq*l$-zh)kmex(g'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -148,6 +149,9 @@ STATIC_URL = 'static/'
 
 STATIC_URL = '/static/'
 
+MEDIA_URL = '/media/'  # URL base para los archivos de medios
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 #cuando estes en produccion coloc debug=false
 if DEBUG:
     STATICFILES_DIRS = [
@@ -158,16 +162,5 @@ else:
 
 
 
-
-
-
-
-#cuando estes en produccion coloc debug=false
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
-
-
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-#LOGIN_REDIRECT_URL = '/mi-pagina-despues-de-login/'
+
