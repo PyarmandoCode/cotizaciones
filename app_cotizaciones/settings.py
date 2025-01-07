@@ -90,8 +90,8 @@ WSGI_APPLICATION = 'app_cotizaciones.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'bdsistemadns',
-        'USER':'dnsadminbd',
+        'NAME': 'bdsistemadns2',
+        'USER':'dnsadminbd2',
         'PASSWORD':'Rioazulq12@',
         'HOST':'147.93.15.2',
         'PORT':'5432'
